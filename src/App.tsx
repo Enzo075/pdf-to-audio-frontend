@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { InputArea } from './components/InputArea';
+import { AudioPlayer } from './components/AudioPlayer';
+import { extractTextFromPDF } from './services/api';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [extractedText, setExtractedText] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  const handleUpload = async (file: File) => {
+    setLoading(true);
+    try {
+      const result = await extractTextFromPDF(file);
+      setExtractedText(result.text);
+    } catch (error) {
+      console.error("Erro detalhado do processamento:", error);
+      alert("Erro ao processar o PDF.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="container">
+      <h1>PDF to Audio 🎧</h1>
+      <InputArea onFileSelect={handleUpload} disabled={loading} />
+
+      {loading && <p>Processando seu PDF... aguarde.</p>}
+
+      {extractedText && (
+        <div className="result-area">
+          <AudioPlayer text={extractedText} />
+          <textarea
+            readOnly
+            value={extractedText}
+            style={{ width: '100%', height: '200px', marginTop: '20px' }}
+          />
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
