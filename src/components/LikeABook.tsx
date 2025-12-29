@@ -10,10 +10,8 @@ interface Props {
 export const LikeABook = ({ pages, currentPage, onPageChange, currentLineIndex }: Props) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Divide o texto da página atual em linhas/frases
     const lines = pages[currentPage]?.split(/(?<=[.!?])\s+|\n/).filter(l => l.trim() !== '') || [];
 
-    // Scroll automático para a linha ativa (opcional, melhora UX)
     useEffect(() => {
         const activeLine = document.getElementById(`line-${currentLineIndex}`);
         if (activeLine && scrollRef.current) {
@@ -23,7 +21,6 @@ export const LikeABook = ({ pages, currentPage, onPageChange, currentLineIndex }
 
     return (
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center gap-6">
-            {/* Página do Livro */}
             <div className="relative w-full aspect-[3/4] md:aspect-[4/5] bg-[#fbfaf8] shadow-2xl rounded-sm border border-slate-200 p-8 md:p-16 flex flex-col justify-between overflow-hidden">
 
                 <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide pr-2">
@@ -43,14 +40,12 @@ export const LikeABook = ({ pages, currentPage, onPageChange, currentLineIndex }
                     ))}
                 </div>
 
-                {/* Rodapé da Página */}
                 <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400 font-sans tracking-widest uppercase">
                     <span>Klai Digital Reader</span>
                     <span>Página {currentPage + 1} de {pages.length}</span>
                 </div>
             </div>
 
-            {/* Controles de Página */}
             <div className="flex gap-4 items-center bg-white p-2 rounded-full shadow-lg border border-slate-100">
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
