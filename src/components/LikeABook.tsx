@@ -37,42 +37,37 @@ export const LikeABook = ({
 
     const currentLines = getLines(pages[currentPageIndex]);
 
+    const getLineClasses = (index: number) => {
+        const isReading = index === readingLineIndex && currentPageIndex === readingPageIndex;
+        const classes = ['book-line'];
+
+        if (isReading) {
+            classes.push('book-line--reading');
+        } else {
+            classes.push(isDarkMode ? 'book-line--dark' : 'book-line--light');
+        }
+
+        return classes.join(' ');
+    };
+
     return (
-        <div className="w-full flex flex-col items-center gap-6 pb-40">
-            <div
-                className={`
-          relative w-full aspect-[3/4] md:aspect-[4/5] shadow-2xl rounded-sm border 
-          transition-colors duration-500 p-8 md:p-16 flex flex-col justify-between overflow-hidden
-          ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-[#fbfaf8] border-slate-200'}
-        `}
-            >
-                <div className="flex-1 overflow-y-auto scrollbar-hide pr-2">
-                    {currentLines.map((line, index) => {
-                        const isReading = index === readingLineIndex && currentPageIndex === readingPageIndex;
-                        return (
-                            <span
-                                key={index}
-                                onDoubleClick={() => onLineSelection(index)}
-                                onTouchEnd={() => handleTouch(index)}
-                                className={`
-                  font-serif text-xl md:text-2xl leading-relaxed block mb-4 
-                  transition-all duration-300 rounded px-1 cursor-pointer select-none
-                  ${isReading
-                                        ? 'bg-yellow-400 text-black shadow-md'
-                                        : isDarkMode
-                                            ? 'text-slate-300 opacity-80'
-                                            : 'text-slate-800 opacity-90'
-                                    }
-                `}
-                            >
-                                {line}
-                            </span>
-                        );
-                    })}
+        <div className="book-container">
+            <div className={`book-page-wrapper ${isDarkMode ? 'book-page-wrapper--dark' : 'book-page-wrapper--light'}`}>
+                <div className="book-content">
+                    {currentLines.map((line, index) => (
+                        <span
+                            key={index}
+                            onDoubleClick={() => onLineSelection(index)}
+                            onTouchEnd={() => handleTouch(index)}
+                            className={getLineClasses(index)}
+                        >
+                            {line}
+                        </span>
+                    ))}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-700/20 flex justify-between items-center text-[10px] text-slate-500 font-sans tracking-widest uppercase">
-                    <span className="truncate max-w-[60%] font-bold">{bookTitle}</span>
+                <div className="book-footer">
+                    <span className="book-title">{bookTitle}</span>
                     <span>
                         Página {currentPageIndex + 1} de {pages.length}
                     </span>
@@ -80,11 +75,9 @@ export const LikeABook = ({
             </div>
 
             {/* Page Navigation */}
-            <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-4">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                        Página
-                    </span>
+            <div className="book-navigation">
+                <div className="book-navigation-controls">
+                    <span className="book-navigation-label">Página</span>
                     <input
                         type="number"
                         value={currentPageIndex + 1}
@@ -94,18 +87,9 @@ export const LikeABook = ({
                                 onPageChange(page);
                             }
                         }}
-                        className={`
-              w-16 text-center py-1 rounded-lg font-bold border 
-              outline-none focus:ring-2 focus:ring-violet-500
-              ${isDarkMode
-                                ? 'bg-slate-800 border-slate-700 text-white'
-                                : 'bg-white border-slate-200 text-slate-700'
-                            }
-            `}
+                        className={`book-navigation-input ${isDarkMode ? 'book-navigation-input--dark' : 'book-navigation-input--light'}`}
                     />
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                        de {pages.length}
-                    </span>
+                    <span className="book-navigation-label">de {pages.length}</span>
                 </div>
             </div>
         </div>

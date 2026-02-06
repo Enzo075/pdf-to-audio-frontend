@@ -1,0 +1,67 @@
+/* ========================================
+   LAYOUT - ESTRUTURA DE PÁGINAS
+   ======================================== */
+
+@layer components {
+  /* ==================== APP CONTAINER ==================== */
+
+  .app-container {
+    @apply min-h-screen w-full transition-colors duration-500 
+           flex flex-col items-center py-6 px-4 selection:bg-violet-400;
+  }
+
+  .app-container--light {
+    @apply bg-slate-50 text-slate-900;
+  }
+
+  .app-container--dark {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+  /* ==================== HEADER ==================== */
+
+  .app-header {
+    @apply w-full max-w-5xl flex justify-between items-center mb-8 h-12;
+  }
+
+  .app-logo-header {
+    @apply mb-12 text-center;
+  }
+
+  .app-logo-title {
+    @apply text-5xl font-black text-violet-600 tracking-tighter;
+  }
+
+  .app-logo-subtitle--light {
+    @apply text-slate-300;
+  }
+
+  .app-logo-subtitle--dark {
+    @apply text-slate-700;
+  }
+
+  /* ==================== MAIN CONTENT ==================== */
+
+  .app-main-content {
+    @apply w-full max-w-4xl flex flex-col items-center flex-1;
+  }
+
+  .app-input-container {
+    @apply w-full max-w-md;
+  }
+
+  /* ==================== FOOTER ==================== */
+
+  .app-footer {
+    @apply mt-auto pt-8 uppercase tracking-widest text-center transition-colors;
+    font-size: 10px;
+  }
+
+  .app-footer--light {
+    @apply text-slate-300;
+  }
+
+  .app-footer--dark {
+    @apply text-slate-700;
+  }
+}

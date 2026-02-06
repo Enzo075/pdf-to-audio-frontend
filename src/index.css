@@ -1,14 +1,7 @@
 @import "tailwindcss";
 
-/* Estilos globais baseados no seu objetivo */
-@layer base {
-  body {
-    /* Preparamos o fundo suave e removemos margens padrão */
-    @apply bg-slate-50 text-slate-900 m-0 p-0 min-h-screen;
-    font-family: system-ui, -apple-system, sans-serif;
-  }
-
-  #root {
-    @apply min-h-screen w-full flex flex-col items-center;
-  }
-}
+/* Importa estilos organizados por camadas */
+@import "./styles/globals.css";
+@import "./styles/layout.css";
+@import "./styles/components.css";
+@import "./styles/features.css";

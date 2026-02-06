@@ -5,62 +5,92 @@ import { LikeABook } from './components/LikeABook';
 import { AudioPlayer } from './components/AudioPlayer';
 import { usePdfUpload } from './hooks/usePdfUpload';
 import { useReaderState } from './hooks/useReaderState';
+import { useSpeechReader } from './hooks/useSpeechReader';
 
 export default function App() {
   // Estados principais
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const isDarkMode = theme === 'dark';
 
-
   const { uploadPdf, loading } = usePdfUpload();
   const reader = useReaderState();
+
+  // Integração do hook de áudio
+  useSpeechReader({
+    pages: reader.pages,
+    readingPageIndex: reader.readingPageIndex,
+    readingLineIndex: reader.readingLineIndex,
+    currentPageIndex: reader.currentPageIndex,
+    isPlaying: reader.isPlaying,
+    onLineChange: (pageIndex, lineIndex) => {
+      reader.setReadingPageIndex(pageIndex);
+      reader.setReadingLineIndex(lineIndex);
+    },
+    onPageChange: (pageIndex) => {
+      reader.setCurrentPageIndex(pageIndex);
+    },
+    onFinish: () => {
+      reader.setIsPlaying(false);
+    },
+  });
+
+  // Variáveis derivadas para simplificar condicionais
+  const hasBook = reader.pages.length > 0;
+  const showUploadArea = !loading && !hasBook;
+  const showReader = !loading && hasBook;
+  const showHeader = hasBook && !loading;
+  const isRestartMode = reader.isEndOfBook && reader.currentPageIndex === reader.pages.length - 1;
+  const showTopButton = showHeader && (reader.isUserAway || reader.isEndOfBook);
 
   const handleUpload = async (file: File) => {
     const result = await uploadPdf(file);
 
-    const pagesData = Array.isArray(result.pages)
+    const pages = Array.isArray(result.pages)
       ? result.pages
       : [result.text];
 
     const title = result.info?.Title || file.name.replace('.pdf', '');
 
     reader.setBookTitle(title);
-    reader.setPages(pagesData);
+    reader.setPages(pages);
     reader.setCurrentPageIndex(0);
     reader.setReadingPageIndex(0);
     reader.setReadingLineIndex(0);
   };
 
+  const handleResetReader = () => {
+    reader.setPages([]);
+    reader.setIsPlaying(false);
+    window.speechSynthesis.cancel();
+  };
+
+  // Classes CSS com tema
+  const containerClass = `app-container app-container--${theme}`;
+  const changePdfClass = `app-btn-change-pdf app-btn-change-pdf--${theme}`;
+  const subtitleClass = `app-logo-subtitle--${theme}`;
+  const footerClass = `app-footer app-footer--${theme}`;
+
+  // Lógica de UI movida do hook
+  const topButtonText = isRestartMode
+    ? "Começar a leitura do início do PDF"
+    : "Continuar leitura desta página";
+
+  const topButtonClass = isRestartMode
+    ? "app-btn-top-action bg-green-600 hover:bg-green-700 shadow-green-500/20"
+    : "app-btn-top-action bg-violet-600 hover:bg-violet-700 shadow-violet-500/20";
 
   return (
-    <div
-      className={`
-        min-h-screen w-full transition-colors duration-500 
-        flex flex-col items-center py-6 px-4 selection:bg-violet-400
-        ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}
-      `}
-    >
+    <div className={containerClass}>
       {/* Header com botões */}
-      <div className="w-full max-w-5xl flex justify-between items-center mb-8 h-12">
-        {reader.pages.length > 0 && !loading && (
+      <div className="app-header">
+        {showHeader && (
           <button
-            onClick={() => {
-              reader.setPages([]);
-              reader.setIsPlaying(false);
-              window.speechSynthesis.cancel();
-            }}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-full shadow-sm 
-              text-sm font-bold transition-all border
-              ${isDarkMode
-                ? 'bg-slate-900 border-slate-700 text-slate-300'
-                : 'bg-white border-slate-200 text-slate-600'
-              }
-            `}
+            onClick={handleResetReader}
+            className={changePdfClass}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
+              className="app-btn-change-pdf-icon"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -76,36 +106,31 @@ export default function App() {
           </button>
         )}
 
-        {reader.pages.length > 0 && !loading && (reader.isUserAway || reader.isEndOfBook) && (
-          <button onClick={reader.handleTopButton} className={`
-              animate-in fade-in slide-in-from-right-4 px-5 py-2 rounded-full
-              text-white text-sm font-bold shadow-lg transition-all active:scale-95
-              ${reader.getTopButtonClasses()}
-            `}
-          >
-            {reader.getTopButtonText()}
+        {showTopButton && (
+          <button onClick={reader.handleTopButton} className={topButtonClass}>
+            {topButtonText}
           </button>
         )}
       </div>
 
       {/* Logo/Header inicial */}
-      {reader.pages.length === 0 && !loading && (
-        <header className="mb-12 text-center">
-          <h1 className="text-5xl font-black text-violet-600 tracking-tighter">
-            KLAI
-            <span className={isDarkMode ? 'text-slate-700' : 'text-slate-300'}>
-              READER
+      {showUploadArea && (
+        <header className="app-logo-header">
+          <h1 className="app-logo-title">
+            PDF TO
+            <span className={subtitleClass}>
+              AUDIO
             </span>
           </h1>
         </header>
       )}
 
       {/* Conteúdo principal */}
-      <main className="w-full max-w-4xl flex flex-col items-center flex-1">
+      <main className="app-main-content">
         <LoadingSpinner visible={loading} />
 
-        {!loading && reader.pages.length === 0 && (
-          <div className="w-full max-w-md">
+        {showUploadArea && (
+          <div className="app-input-container">
             <InputArea
               onUpload={handleUpload}
               disabled={loading}
@@ -114,7 +139,7 @@ export default function App() {
           </div>
         )}
 
-        {!loading && reader.pages.length > 0 && (
+        {showReader && (
           <LikeABook
             pages={reader.pages}
             currentPageIndex={reader.currentPageIndex}
@@ -129,7 +154,7 @@ export default function App() {
       </main>
 
       {/* Audio Player fixo */}
-      {reader.pages.length > 0 && (
+      {hasBook && (
         <AudioPlayer
           isPlaying={reader.isPlaying}
           setIsPlaying={reader.setIsPlaying}
@@ -143,13 +168,8 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer
-        className={`
-          mt-auto pt-8 text-[10px] uppercase tracking-widest text-center transition-colors
-          ${isDarkMode ? 'text-slate-700' : 'text-slate-300'}
-        `}
-      >
-        &copy; 2025 Klai - Projeto Desenvolvido para portfolio
+      <footer className={footerClass}>
+        &copy; 2025 Enzo Klai Roth - Projeto Desenvolvido para portfolio
       </footer>
     </div>
   );

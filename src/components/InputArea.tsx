@@ -16,27 +16,33 @@ export const InputArea = ({ onUpload, disabled = false, isDarkMode }: Props) => 
         disabled,
     });
 
+    const getDropzoneClasses = () => {
+        const classes = ['input-area-dropzone'];
+
+        if (disabled) {
+            classes.push('input-area-dropzone--disabled');
+        } else {
+            classes.push('input-area-dropzone--enabled');
+        }
+
+        if (isDragActive) {
+            classes.push('input-area-dropzone--drag-active');
+        }
+
+        classes.push(isDarkMode ? 'input-area-dropzone--dark' : 'input-area-dropzone--light');
+
+        return classes.join(' ');
+    };
+
     return (
-        <div
-            {...getRootProps()}
-            className={`
-        relative group w-full h-80 flex flex-col items-center justify-center 
-        rounded-3xl border-2 border-dashed transition-all duration-500 cursor-pointer overflow-hidden
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] shadow-xl'}
-        ${isDragActive ? 'border-violet-400 bg-violet-500/10' : ''}
-        ${isDarkMode
-                    ? 'border-slate-800 bg-slate-900/50 hover:border-violet-500'
-                    : 'border-slate-200 bg-white hover:border-violet-500'
-                }
-      `}
-        >
+        <div {...getRootProps()} className={getDropzoneClasses()}>
             <input {...getInputProps()} />
 
-            <div className="flex flex-col items-center gap-4">
-                <div className="p-5 rounded-full bg-violet-100 text-violet-600">
+            <div className="input-area-content">
+                <div className="input-area-icon-wrapper">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-10 w-10"
+                        className="input-area-icon"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -50,11 +56,11 @@ export const InputArea = ({ onUpload, disabled = false, isDarkMode }: Props) => 
                     </svg>
                 </div>
 
-                <div className="text-center">
-                    <p className={`text-lg font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
+                <div className="input-area-text">
+                    <p className={`input-area-title ${isDarkMode ? 'input-area-title--dark' : 'input-area-title--light'}`}>
                         Uploader
                     </p>
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="input-area-subtitle">
                         {isDragActive ? 'Solte o arquivo aqui...' : 'Selecione ou arraste um arquivo PDF'}
                     </p>
                 </div>

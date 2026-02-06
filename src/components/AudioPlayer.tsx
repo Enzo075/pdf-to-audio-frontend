@@ -20,30 +20,15 @@ export const AudioPlayer = ({
     setTheme,
 }: Props) => {
     return (
-        <div className="fixed bottom-0 left-0 w-full z-50 p-6 pointer-events-none">
-            <div
-                className={`
-          max-w-3xl mx-auto border shadow-2xl rounded-3xl p-5 
-          flex flex-col md:flex-row items-center justify-between 
-          pointer-events-auto gap-4 transition-colors duration-500
-          ${isDarkMode
-                        ? 'bg-slate-900/95 border-slate-800 backdrop-blur-xl'
-                        : 'bg-white/95 border-white/20 backdrop-blur-xl'
-                    }
-        `}
-            >
+        <div className="audio-player-container">
+            <div className={`audio-player-card ${isDarkMode ? 'audio-player-card--dark' : 'audio-player-card--light'}`}>
                 {/* Status Indicator */}
-                <div className="flex items-center gap-6 w-full md:w-auto">
-                    <div className="flex items-center gap-3">
-                        <div
-                            className={`w-3 h-3 rounded-full ${isPlaying ? 'bg-green-500 animate-pulse' : 'bg-slate-400'
-                                }`}
-                        />
+                <div className="audio-player-status">
+                    <div className="audio-player-indicator">
+                        <div className={`audio-player-dot ${isPlaying ? 'audio-player-dot--playing' : 'audio-player-dot--paused'}`} />
                         <div>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                                Klai Voice
-                            </p>
-                            <p className="text-[9px] text-slate-400 italic">
+                            <p className="audio-player-label">Áudio</p>
+                            <p className="audio-player-position">
                                 Pág {readingPageIndex + 1} • Linha {readingLineIndex + 1}
                             </p>
                         </div>
@@ -51,10 +36,10 @@ export const AudioPlayer = ({
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center gap-3 sm:gap-6">
+                <div className="audio-player-controls">
                     <button
                         onClick={() => onPageSkip('prev')}
-                        className="text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors"
+                        className="audio-player-btn-skip"
                         title="Página Anterior"
                     >
                         ≪
@@ -62,7 +47,7 @@ export const AudioPlayer = ({
 
                     <button
                         onClick={() => onLineSkip('prev')}
-                        className="text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors"
+                        className="audio-player-btn-skip"
                         title="Linha Anterior"
                     >
                         {'<'}
@@ -70,12 +55,12 @@ export const AudioPlayer = ({
 
                     <button
                         onClick={() => setIsPlaying(!isPlaying)}
-                        className="group p-6 bg-violet-600 hover:bg-violet-700 rounded-full transition-all shadow-xl shadow-violet-500/20 active:scale-90"
+                        className="audio-player-btn-play"
                     >
                         {isPlaying ? (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6 text-white"
+                                className="audio-player-icon"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -90,7 +75,7 @@ export const AudioPlayer = ({
                         ) : (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6 text-white"
+                                className="audio-player-icon"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -107,7 +92,7 @@ export const AudioPlayer = ({
 
                     <button
                         onClick={() => onLineSkip('next')}
-                        className="text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors"
+                        className="audio-player-btn-skip"
                         title="Próxima Linha"
                     >
                         {'>'}
@@ -115,7 +100,7 @@ export const AudioPlayer = ({
 
                     <button
                         onClick={() => onPageSkip('next')}
-                        className="text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors"
+                        className="audio-player-btn-skip"
                         title="Próxima Página"
                     >
                         ≫
@@ -123,16 +108,10 @@ export const AudioPlayer = ({
                 </div>
 
                 {/* Theme Toggle */}
-                <div className="flex justify-end min-w-[120px]">
+                <div className="audio-player-theme-wrapper">
                     <button
                         onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
-                        className={`
-              p-3 rounded-2xl transition-all text-xl shadow-sm border
-              ${isDarkMode
-                                ? 'bg-slate-800 border-slate-700 text-yellow-400'
-                                : 'bg-slate-100 border-slate-200 text-slate-600'
-                            }
-            `}
+                        className={`audio-player-theme-btn ${isDarkMode ? 'audio-player-theme-btn--dark' : 'audio-player-theme-btn--light'}`}
                         title="Mudar Tema"
                     >
                         {isDarkMode ? '☀️' : '🌙'}

@@ -1,0 +1,69 @@
+/* ========================================
+   COMPONENTES REUTILIZÁVEIS
+   ======================================== */
+
+@layer components {
+  /* ==================== BOTÕES ==================== */
+
+  .app-btn-change-pdf {
+    @apply flex items-center gap-2 px-4 py-2 rounded-full shadow-sm 
+           text-sm font-bold transition-all border;
+  }
+
+  .app-btn-change-pdf--light {
+    @apply bg-white border-slate-200 text-slate-600;
+  }
+
+  .app-btn-change-pdf--dark {
+    @apply bg-slate-900 border-slate-700 text-slate-300;
+  }
+
+  .app-btn-change-pdf-icon {
+    @apply h-4 w-4;
+  }
+
+  .app-btn-top-action {
+    @apply px-5 py-2 rounded-full text-white text-sm font-bold 
+           shadow-lg transition-all active:scale-95;
+    animation: slideInFromRight 0.3s ease-out;
+  }
+
+  /* ==================== INPUTS ==================== */
+
+  .book-navigation-input {
+    @apply w-16 text-center py-1 rounded-lg font-bold border 
+           outline-none focus:ring-2 focus:ring-violet-500;
+  }
+
+  .book-navigation-input--light {
+    @apply bg-white border-slate-200 text-slate-700;
+  }
+
+  .book-navigation-input--dark {
+    @apply bg-slate-800 border-slate-700 text-white;
+  }
+
+  /* ==================== LABELS E TEXTOS ==================== */
+
+  .book-navigation-label {
+    @apply text-xs font-bold text-slate-500 uppercase tracking-widest;
+  }
+
+  .input-area-subtitle {
+    @apply text-sm text-slate-400 mt-1;
+  }
+
+  /* ==================== ÍCONES ==================== */
+
+  .input-area-icon-wrapper {
+    @apply p-5 rounded-full bg-violet-100 text-violet-600;
+  }
+
+  .input-area-icon {
+    @apply h-10 w-10;
+  }
+
+  .audio-player-icon {
+    @apply h-6 w-6 text-white;
+  }
+}
