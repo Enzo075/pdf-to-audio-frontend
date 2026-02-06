@@ -1,0 +1,66 @@
+/* ========================================
+   ESTILOS GLOBAIS E BASE
+   ======================================== */
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 m-0 p-0 min-h-screen;
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+
+  #root {
+    @apply min-h-screen w-full flex flex-col items-center;
+  }
+}
+
+/* ========================================
+   UTILITÁRIOS GLOBAIS
+   ======================================== */
+
+@layer utilities {
+  /* Esconder scrollbar mantendo funcionalidade */
+  .book-content::-webkit-scrollbar {
+    display: none;
+  }
+
+  .book-content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* ========================================
+   KEYFRAMES GLOBAIS
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

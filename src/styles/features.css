@@ -1,0 +1,250 @@
+/* ========================================
+   FEATURES ESPECÍFICAS
+   ======================================== */
+
+@layer components {
+  /* ==================== AUDIO PLAYER ==================== */
+
+  .audio-player-container {
+    @apply fixed bottom-0 left-0 w-full z-50 p-6 pointer-events-none;
+  }
+
+  .audio-player-card {
+    @apply max-w-3xl mx-auto border shadow-2xl rounded-3xl p-5 
+           flex flex-col md:flex-row items-center justify-between 
+           pointer-events-auto gap-4 transition-colors duration-500;
+  }
+
+  .audio-player-card--light {
+    @apply bg-white/95 border-white/20 backdrop-blur-xl;
+  }
+
+  .audio-player-card--dark {
+    @apply bg-slate-900/95 border-slate-800 backdrop-blur-xl;
+  }
+
+  .audio-player-status {
+    @apply flex items-center gap-6 w-full md:w-auto;
+  }
+
+  .audio-player-indicator {
+    @apply flex items-center gap-3;
+  }
+
+  .audio-player-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  .audio-player-dot--playing {
+    @apply bg-green-500 animate-pulse;
+  }
+
+  .audio-player-dot--paused {
+    @apply bg-slate-400;
+  }
+
+  .audio-player-label {
+    @apply font-bold text-slate-500 uppercase tracking-tighter;
+    font-size: 10px;
+  }
+
+  .audio-player-position {
+    @apply text-slate-400 italic;
+    font-size: 9px;
+  }
+
+  .audio-player-controls {
+    @apply flex items-center gap-3 sm:gap-6;
+  }
+
+  .audio-player-btn-skip {
+    @apply text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors;
+  }
+
+  .audio-player-btn-play {
+    @apply p-6 bg-violet-600 hover:bg-violet-700 rounded-full 
+           transition-all shadow-xl shadow-violet-500/20 active:scale-90;
+  }
+
+  .audio-player-theme-wrapper {
+    @apply flex justify-end;
+    min-width: 7.5rem;
+  }
+
+  .audio-player-theme-btn {
+    @apply p-3 rounded-2xl transition-all text-xl shadow-sm border;
+  }
+
+  .audio-player-theme-btn--light {
+    @apply bg-slate-100 border-slate-200 text-slate-600;
+  }
+
+  .audio-player-theme-btn--dark {
+    @apply bg-slate-800 border-slate-700 text-yellow-400;
+  }
+
+  /* ==================== INPUT AREA (UPLOAD) ==================== */
+
+  .input-area-dropzone {
+    @apply relative w-full h-80 flex flex-col items-center justify-center 
+           rounded-3xl border-2 border-dashed transition-all duration-500 
+           cursor-pointer overflow-hidden;
+  }
+
+  .input-area-dropzone--disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .input-area-dropzone--enabled {
+    @apply shadow-xl;
+  }
+
+  .input-area-dropzone--enabled:hover {
+    transform: scale(1.02);
+  }
+
+  .input-area-dropzone--drag-active {
+    @apply border-violet-400 bg-violet-500/10;
+  }
+
+  .input-area-dropzone--light {
+    @apply border-slate-200 bg-white hover:border-violet-500;
+  }
+
+  .input-area-dropzone--dark {
+    @apply border-slate-800 bg-slate-900/50 hover:border-violet-500;
+  }
+
+  .input-area-content {
+    @apply flex flex-col items-center gap-4;
+  }
+
+  .input-area-text {
+    @apply text-center;
+  }
+
+  .input-area-title {
+    @apply text-lg font-bold;
+  }
+
+  .input-area-title--light {
+    @apply text-slate-700;
+  }
+
+  .input-area-title--dark {
+    @apply text-slate-200;
+  }
+
+  /* ==================== BOOK READER ==================== */
+
+  .book-container {
+    @apply w-full flex flex-col items-center gap-6 pb-40;
+  }
+
+  .book-page-wrapper {
+    @apply relative w-full shadow-2xl rounded-sm border 
+           transition-colors duration-500 p-8 md:p-12 flex flex-col justify-between 
+           overflow-hidden;
+    aspect-ratio: 3/4;
+  }
+
+  @media (min-width: 768px) {
+    .book-page-wrapper {
+      aspect-ratio: 4/5;
+    }
+  }
+
+  .book-page-wrapper--light {
+    @apply border-slate-200;
+    background-color: #fbfaf8;
+  }
+
+  .book-page-wrapper--dark {
+    @apply bg-slate-900 border-slate-800;
+  }
+
+  .book-content {
+    @apply flex-1 overflow-y-auto pr-2;
+  }
+
+  .book-line {
+    @apply font-serif text-xl md:text-2xl leading-relaxed block mb-4 
+           transition-all duration-300 rounded px-1 cursor-pointer select-none;
+  }
+
+  .book-line--reading {
+    @apply bg-yellow-400 text-black shadow-md;
+  }
+
+  .book-line--light {
+    @apply text-slate-800 opacity-90;
+  }
+
+  .book-line--dark {
+    @apply text-slate-300 opacity-80;
+  }
+
+  .book-footer {
+    @apply mt-6 pt-4 border-t flex justify-between items-center 
+           text-slate-500 font-sans tracking-widest uppercase;
+    border-color: rgba(51, 65, 85, 0.2);
+    font-size: 10px;
+  }
+
+  .book-title {
+    @apply truncate font-bold;
+    max-width: 60%;
+  }
+
+  .book-navigation {
+    @apply flex flex-col items-center gap-2;
+  }
+
+  .book-navigation-controls {
+    @apply flex items-center gap-4;
+  }
+
+  /* ==================== LOADING SPINNER ==================== */
+
+  .loading-container {
+    @apply mt-20 flex flex-col items-center justify-center p-10 gap-6;
+    animation: fadeIn 1s ease-in;
+  }
+
+  .loading-spinner-wrapper {
+    @apply relative w-20 h-20;
+  }
+
+  .loading-spinner-outer {
+    @apply absolute inset-0 rounded-full border-4 
+           border-t-violet-600 border-r-transparent 
+           border-b-violet-600 border-l-transparent 
+           animate-spin;
+    animation-duration: 2s;
+  }
+
+  .loading-spinner-middle {
+    @apply absolute inset-2 rounded-full border-4 
+           border-t-transparent border-r-purple-400 
+           border-b-transparent border-l-purple-400;
+    animation: spin 1.5s linear infinite reverse;
+  }
+
+  .loading-spinner-core {
+    @apply absolute inset-6 bg-violet-600 rounded-full animate-pulse;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+  }
+
+  .loading-text-wrapper {
+    @apply text-center;
+  }
+
+  .loading-title {
+    @apply text-violet-600 font-black text-xl uppercase;
+  }
+
+  .loading-subtitle {
+    @apply text-slate-400 font-bold uppercase mt-2;
+    font-size: 10px;
+  }
+}
