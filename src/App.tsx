@@ -137,6 +137,7 @@ export default function App() {
             readingLineIndex={reader.readingLineIndex}
             bookTitle={reader.bookTitle}
             isDarkMode={isDarkMode}
+            isPlaying={reader.isPlaying}
             onLineSelection={reader.handleLineSelection}
             onPageChange={reader.setCurrentPageIndex}
           />
