@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { InputArea } from './components/InputArea';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { LikeABook } from './components/LikeABook';
@@ -6,11 +5,11 @@ import { AudioPlayer } from './components/AudioPlayer';
 import { usePdfUpload } from './hooks/usePdfUpload';
 import { useReaderState } from './hooks/useReaderState';
 import { useSpeechReader } from './hooks/useSpeechReader';
+import { useTheme } from './hooks/useTheme';
 
 export default function App() {
-  // Estados principais
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const isDarkMode = theme === 'dark';
+  // Consome tema do contexto (não controla mais diretamente)
+  const { theme, setTheme, isDarkMode } = useTheme();
 
   const { uploadPdf, loading } = usePdfUpload();
   const reader = useReaderState();
