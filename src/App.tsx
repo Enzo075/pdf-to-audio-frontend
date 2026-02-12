@@ -8,13 +8,10 @@ import { useSpeechReader } from './hooks/useSpeechReader';
 import { useTheme } from './hooks/useTheme';
 
 export default function App() {
-  // Consome tema do contexto (não controla mais diretamente)
   const { theme, setTheme, isDarkMode } = useTheme();
-
-  const { uploadPdf, loading } = usePdfUpload();
+  const { uploadPdf, loading, error, clearError } = usePdfUpload();
   const reader = useReaderState();
 
-  // Integração do hook de áudio
   useSpeechReader({
     pages: reader.pages,
     readingPageIndex: reader.readingPageIndex,
@@ -33,7 +30,6 @@ export default function App() {
     },
   });
 
-  // Variáveis derivadas para simplificar condicionais
   const hasBook = reader.pages.length > 0;
   const showUploadArea = !loading && !hasBook;
   const showReader = !loading && hasBook;
@@ -43,6 +39,8 @@ export default function App() {
 
   const handleUpload = async (file: File) => {
     const result = await uploadPdf(file);
+
+    if (!result) return;
 
     const pages = Array.isArray(result.pages)
       ? result.pages
@@ -63,13 +61,11 @@ export default function App() {
     window.speechSynthesis.cancel();
   };
 
-  // Classes CSS com tema
   const containerClass = `app-container app-container--${theme}`;
   const changePdfClass = `app-btn-change-pdf app-btn-change-pdf--${theme}`;
   const subtitleClass = `app-logo-subtitle--${theme}`;
   const footerClass = `app-footer app-footer--${theme}`;
 
-  // Lógica de UI movida do hook
   const topButtonText = isRestartMode
     ? "Começar a leitura do início do PDF"
     : "Continuar leitura desta página";
@@ -83,10 +79,7 @@ export default function App() {
       {/* Header com botões */}
       <div className="app-header">
         {showHeader && (
-          <button
-            onClick={handleResetReader}
-            className={changePdfClass}
-          >
+          <button onClick={handleResetReader} className={changePdfClass}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="app-btn-change-pdf-icon"
@@ -117,9 +110,7 @@ export default function App() {
         <header className="app-logo-header">
           <h1 className="app-logo-title">
             PDF TO
-            <span className={subtitleClass}>
-              AUDIO
-            </span>
+            <span className={subtitleClass}>AUDIO</span>
           </h1>
         </header>
       )}
@@ -170,6 +161,44 @@ export default function App() {
       <footer className={footerClass}>
         &copy; 2025 Enzo Klai Roth - Projeto Desenvolvido para portfolio
       </footer>
+
+      {/* Modal de Erro */}
+      {error && (
+        <div className="error-modal-overlay">
+          <div className={`error-modal-backdrop error-modal-backdrop--${theme}`} />
+          <div className={`error-modal-content error-modal-content--${theme}`}>
+            <div className="error-modal-icon-wrapper">
+              <div className={`error-modal-icon error-modal-icon--${theme}`}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h2 className={`error-modal-title error-modal-title--${theme}`}>
+              Ops! Algo deu errado
+            </h2>
+            <p className={`error-modal-message error-modal-message--${theme}`}>
+              {error}
+            </p>
+            <button
+              onClick={clearError}
+              className={`error-modal-button error-modal-button--${theme}`}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
