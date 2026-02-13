@@ -151,6 +151,10 @@ export default function App() {
           setIsPlaying={reader.setIsPlaying}
           readingPageIndex={reader.readingPageIndex}
           readingLineIndex={reader.readingLineIndex}
+          canGoToPrevPage={reader.canGoToPrevPage}
+          canGoToNextPage={reader.canGoToNextPage}
+          canGoToPrevLine={reader.canGoToPrevLine}
+          canGoToNextLine={reader.canGoToNextLine}
           onLineSkip={reader.handleLineSkip}
           onPageSkip={reader.handlePageSkip}
           isDarkMode={isDarkMode}

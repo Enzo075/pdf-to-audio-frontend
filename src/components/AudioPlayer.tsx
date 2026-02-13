@@ -3,6 +3,10 @@ interface Props {
     setIsPlaying: (playing: boolean) => void;
     readingPageIndex: number;
     readingLineIndex: number;
+    canGoToPrevPage: boolean;
+    canGoToNextPage: boolean;
+    canGoToPrevLine: boolean;
+    canGoToNextLine: boolean;
     onLineSkip: (direction: 'next' | 'prev') => void;
     onPageSkip: (direction: 'next' | 'prev') => void;
     isDarkMode: boolean;
@@ -14,6 +18,10 @@ export const AudioPlayer = ({
     setIsPlaying,
     readingPageIndex,
     readingLineIndex,
+    canGoToPrevPage,
+    canGoToNextPage,
+    canGoToPrevLine,
+    canGoToNextLine,
     onLineSkip,
     onPageSkip,
     isDarkMode,
@@ -38,17 +46,19 @@ export const AudioPlayer = ({
                 {/* Controls */}
                 <div className="audio-player-controls">
                     <button
-                        onClick={() => onPageSkip('prev')}
-                        className="audio-player-btn-skip"
-                        title="Página Anterior"
+                        onClick={() => canGoToPrevPage && onPageSkip('prev')}
+                        disabled={!canGoToPrevPage}
+                        className={`audio-player-btn-skip ${!canGoToPrevPage ? 'audio-player-btn-skip--disabled' : ''}`}
+                        title={canGoToPrevPage ? "Página Anterior" : "Primeira página"}
                     >
                         ≪
                     </button>
 
                     <button
-                        onClick={() => onLineSkip('prev')}
-                        className="audio-player-btn-skip"
-                        title="Linha Anterior"
+                        onClick={() => canGoToPrevLine && onLineSkip('prev')}
+                        disabled={!canGoToPrevLine}
+                        className={`audio-player-btn-skip ${!canGoToPrevLine ? 'audio-player-btn-skip--disabled' : ''}`}
+                        title={canGoToPrevLine ? "Linha Anterior" : "Primeira linha"}
                     >
                         {'<'}
                     </button>
@@ -91,17 +101,19 @@ export const AudioPlayer = ({
                     </button>
 
                     <button
-                        onClick={() => onLineSkip('next')}
-                        className="audio-player-btn-skip"
-                        title="Próxima Linha"
+                        onClick={() => canGoToNextLine && onLineSkip('next')}
+                        disabled={!canGoToNextLine}
+                        className={`audio-player-btn-skip ${!canGoToNextLine ? 'audio-player-btn-skip--disabled' : ''}`}
+                        title={canGoToNextLine ? "Próxima Linha" : "Última linha"}
                     >
                         {'>'}
                     </button>
 
                     <button
-                        onClick={() => onPageSkip('next')}
-                        className="audio-player-btn-skip"
-                        title="Próxima Página"
+                        onClick={() => canGoToNextPage && onPageSkip('next')}
+                        disabled={!canGoToNextPage}
+                        className={`audio-player-btn-skip ${!canGoToNextPage ? 'audio-player-btn-skip--disabled' : ''}`}
+                        title={canGoToNextPage ? "Próxima Página" : "Última página"}
                     >
                         ≫
                     </button>
