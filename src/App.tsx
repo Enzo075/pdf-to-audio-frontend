@@ -1,16 +1,24 @@
+import { useState } from 'react';
 import { InputArea } from './components/InputArea';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { LikeABook } from './components/LikeABook';
 import { AudioPlayer } from './components/AudioPlayer';
+import { SettingsDrawer } from './components/SettingsDrawer';
 import { usePdfUpload } from './hooks/usePdfUpload';
 import { useReaderState } from './hooks/useReaderState';
 import { useSpeechReader } from './hooks/useSpeechReader';
 import { useTheme } from './hooks/useTheme';
+import { ThemeSwitch } from './components/ThemeSwitch';
 
 export default function App() {
   const { theme, setTheme, isDarkMode } = useTheme();
   const { uploadPdf, loading, error, clearError } = usePdfUpload();
   const reader = useReaderState();
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const openSettings = () => setIsSettingsOpen(true);
+  const closeSettings = () => setIsSettingsOpen(false);
 
   useSpeechReader({
     pages: reader.pages,
@@ -61,6 +69,10 @@ export default function App() {
     window.speechSynthesis.cancel();
   };
 
+  const toggleTheme = () => {
+    setTheme(isDarkMode ? 'light' : 'dark');
+  };
+
   const containerClass = `app-container app-container--${theme}`;
   const changePdfClass = `app-btn-change-pdf app-btn-change-pdf--${theme}`;
   const subtitleClass = `app-logo-subtitle--${theme}`;
@@ -76,7 +88,13 @@ export default function App() {
 
   return (
     <div className={containerClass}>
-      {/* Header com botões */}
+      {/* ThemeSwitch no canto superior direito (apenas na tela inicial) */}
+      {showUploadArea && (
+        <div className="fixed top-6 right-6 z-40">
+          <ThemeSwitch isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+        </div>
+      )}
+
       <div className="app-header">
         {showHeader && (
           <button onClick={handleResetReader} className={changePdfClass}>
@@ -105,7 +123,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Logo/Header inicial */}
       {showUploadArea && (
         <header className="app-logo-header">
           <h1 className="app-logo-title">
@@ -115,7 +132,6 @@ export default function App() {
         </header>
       )}
 
-      {/* Conteúdo principal */}
       <main className="app-main-content">
         <LoadingSpinner visible={loading} />
 
@@ -144,7 +160,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Audio Player fixo */}
       {hasBook && (
         <AudioPlayer
           isPlaying={reader.isPlaying}
@@ -158,16 +173,14 @@ export default function App() {
           onLineSkip={reader.handleLineSkip}
           onPageSkip={reader.handlePageSkip}
           isDarkMode={isDarkMode}
-          setTheme={setTheme}
+          onSettingsClick={openSettings}
         />
       )}
 
-      {/* Footer */}
       <footer className={footerClass}>
         &copy; 2025 Enzo Klai Roth - Projeto Desenvolvido para portfolio
       </footer>
 
-      {/* Modal de Erro */}
       {error && (
         <div className="error-modal-overlay">
           <div className={`error-modal-backdrop error-modal-backdrop--${theme}`} />
@@ -204,6 +217,13 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <SettingsDrawer
+        isOpen={isSettingsOpen}
+        onClose={closeSettings}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+      />
     </div>
   );
 }
