@@ -12,7 +12,6 @@ export interface PDFResult {
   info?: PDFInfo;
 }
 
-// Cria instância do Axios com configuração base
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
@@ -32,7 +31,6 @@ export const extractTextFromPDF = async (file: File): Promise<PDFResult> => {
     );
     return response.data;
   } catch (error) {
-    // Tratamento específico de erro para melhor feedback
     if (axios.isAxiosError(error)) {
       if (error.code === "ECONNABORTED") {
         throw new Error(

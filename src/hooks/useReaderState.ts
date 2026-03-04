@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { parseTextToLines } from "../utils/textParser";
 
 export const useReaderState = () => {
@@ -10,12 +10,25 @@ export const useReaderState = () => {
   const [readingLineIndex, setReadingLineIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const onPlayStartCallbacks = useRef<Set<() => void>>(new Set());
+
+  const registerOnPlayStart = (cb: () => void) => {
+    onPlayStartCallbacks.current.add(cb);
+    return () => onPlayStartCallbacks.current.delete(cb);
+  };
+
+  const startPlaying = () => {
+    onPlayStartCallbacks.current.forEach((cb) => cb());
+    setIsPlaying(true);
+  };
+
+  const stopPlaying = () => {
+    setIsPlaying(false);
+  };
+
   const handleLineSkip = (dir: "next" | "prev") => {
     const currentLines = parseTextToLines(pages[readingPageIndex]);
 
-    // ============================
-    // AVANÇAR
-    // ============================
     if (dir === "next") {
       const nextLine = readingLineIndex + 1;
 
@@ -36,9 +49,6 @@ export const useReaderState = () => {
       }
     }
 
-    // ============================
-    // VOLTAR
-    // ============================
     if (dir === "prev") {
       const prevLine = readingLineIndex - 1;
 
@@ -59,10 +69,9 @@ export const useReaderState = () => {
       }
     }
 
-    // Reinicia áudio se estiver tocando
     if (isPlaying) {
-      setIsPlaying(false);
-      setTimeout(() => setIsPlaying(true), 50);
+      stopPlaying();
+      setTimeout(() => startPlaying(), 50);
     }
   };
 
@@ -75,7 +84,7 @@ export const useReaderState = () => {
 
   const handleLineSelection = (index: number) => {
     window.speechSynthesis.cancel();
-    setIsPlaying(false);
+    stopPlaying();
     setReadingPageIndex(currentPageIndex);
     setReadingLineIndex(index);
   };
@@ -90,20 +99,17 @@ export const useReaderState = () => {
       setCurrentPageIndex(0);
       setReadingPageIndex(0);
       setReadingLineIndex(0);
-      setIsPlaying(false);
+      stopPlaying();
       window.speechSynthesis.cancel();
     } else {
       window.speechSynthesis.cancel();
       setReadingPageIndex(currentPageIndex);
       setReadingLineIndex(0);
-      setIsPlaying(false);
-      setTimeout(() => setIsPlaying(true), 50);
+      stopPlaying();
+      setTimeout(() => startPlaying(), 50);
     }
   };
 
-  // ==================== FLAGS DE NAVEGAÇÃO ====================
-
-  // Flags de navegação de página (baseadas em currentPageIndex - navegação visual)
   const canGoToPrevPage = useMemo(() => {
     return currentPageIndex > 0;
   }, [currentPageIndex]);
@@ -112,8 +118,6 @@ export const useReaderState = () => {
     return currentPageIndex < pages.length - 1;
   }, [currentPageIndex, pages.length]);
 
-  // Flags de navegação de linha (baseadas em readingPageIndex/readingLineIndex - áudio)
-  // Com navegação contínua entre páginas
   const canGoToPrevLine = useMemo(() => {
     // Se não estiver na primeira linha da página atual, pode voltar
     if (readingLineIndex > 0) {
@@ -124,12 +128,10 @@ export const useReaderState = () => {
     for (let i = readingPageIndex - 1; i >= 0; i--) {
       const lines = parseTextToLines(pages[i]);
       if (lines.length > 0) {
-        // Existe página anterior com texto
         return true;
       }
     }
 
-    // Não existe página anterior com texto
     return false;
   }, [readingPageIndex, readingLineIndex, pages]);
 
@@ -145,12 +147,10 @@ export const useReaderState = () => {
     for (let i = readingPageIndex + 1; i < pages.length; i++) {
       const lines = parseTextToLines(pages[i]);
       if (lines.length > 0) {
-        // Existe próxima página com texto
         return true;
       }
     }
 
-    // Não existe próxima página com texto
     return false;
   }, [readingPageIndex, readingLineIndex, pages]);
 
@@ -166,14 +166,15 @@ export const useReaderState = () => {
     readingPageIndex,
     readingLineIndex,
     isPlaying,
-    setIsPlaying,
+    startPlaying,
+    stopPlaying,
+    registerOnPlayStart,
     handleLineSkip,
     handlePageSkip,
     handleLineSelection,
     handleTopButton,
     isUserAway,
     isEndOfBook,
-    // Flags de navegação
     canGoToPrevPage,
     canGoToNextPage,
     canGoToPrevLine,

@@ -1,6 +1,7 @@
 interface Props {
     isPlaying: boolean;
-    setIsPlaying: (playing: boolean) => void;
+    onPlay: () => void;
+    onPause: () => void;
     readingPageIndex: number;
     readingLineIndex: number;
     canGoToPrevPage: boolean;
@@ -15,7 +16,8 @@ interface Props {
 
 export const AudioPlayer = ({
     isPlaying,
-    setIsPlaying,
+    onPlay,
+    onPause,
     readingPageIndex,
     readingLineIndex,
     canGoToPrevPage,
@@ -30,7 +32,6 @@ export const AudioPlayer = ({
     return (
         <div className="audio-player-container">
             <div className={`audio-player-card ${isDarkMode ? 'audio-player-card--dark' : 'audio-player-card--light'}`}>
-                {/* Status Indicator */}
                 <div className="audio-player-status">
                     <div className="audio-player-indicator">
                         <div className={`audio-player-dot ${isPlaying ? 'audio-player-dot--playing' : 'audio-player-dot--paused'}`} />
@@ -43,7 +44,6 @@ export const AudioPlayer = ({
                     </div>
                 </div>
 
-                {/* Controls */}
                 <div className="audio-player-controls">
                     <button
                         onClick={() => canGoToPrevPage && onPageSkip('prev')}
@@ -64,7 +64,7 @@ export const AudioPlayer = ({
                     </button>
 
                     <button
-                        onClick={() => setIsPlaying(!isPlaying)}
+                        onClick={() => isPlaying ? onPause() : onPlay()}
                         className="audio-player-btn-play"
                     >
                         {isPlaying ? (
@@ -119,7 +119,6 @@ export const AudioPlayer = ({
                     </button>
                 </div>
 
-                {/* Settings Button */}
                 <div className="audio-player-theme-wrapper">
                     <button
                         onClick={onSettingsClick}

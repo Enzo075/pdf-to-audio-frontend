@@ -38,7 +38,6 @@ export const LikeABook = ({
         lastTap.current = now;
     }, [onLineSelection]);
 
-    // Scroll automático quando play/pause é clicado ou linha muda
     useEffect(() => {
         if (currentPageIndex === readingPageIndex && activeLineRef.current) {
             activeLineRef.current.scrollIntoView({
@@ -66,7 +65,6 @@ export const LikeABook = ({
     return (
         <div className="book-container">
             <div className={`book-page-wrapper book-page-wrapper--fixed ${isDarkMode ? 'book-page-wrapper--dark' : 'book-page-wrapper--light'}`}>
-                {/* Área de conteúdo com scroll interno */}
                 <div className={`book-content book-content--scrollable ${isDarkMode ? 'book-content--dark' : 'book-content--light'}`}>
                     {currentLines.map((line, index) => {
                         const isActiveReadingLine = index === readingLineIndex && currentPageIndex === readingPageIndex;
@@ -84,8 +82,6 @@ export const LikeABook = ({
                         );
                     })}
                 </div>
-
-                {/* Footer fixo na base */}
                 <div className="book-footer">
                     <span className="book-title">{bookTitle}</span>
                     <span>
@@ -94,7 +90,6 @@ export const LikeABook = ({
                 </div>
             </div>
 
-            {/* Page Navigation - Fora do wrapper fixo */}
             <div className="book-navigation">
                 <div className="book-navigation-controls">
                     <span className="book-navigation-label">Página</span>

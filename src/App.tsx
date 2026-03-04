@@ -8,14 +8,19 @@ import { usePdfUpload } from './hooks/usePdfUpload';
 import { useReaderState } from './hooks/useReaderState';
 import { useSpeechReader } from './hooks/useSpeechReader';
 import { useTheme } from './hooks/useTheme';
+import { useReadingEngine } from './hooks/useReadingEngine';
 import { ThemeSwitch } from './components/ThemeSwitch';
 
 export default function App() {
   const { theme, setTheme, isDarkMode } = useTheme();
   const { uploadPdf, loading, error, clearError } = usePdfUpload();
+  const { apiKeyError } = useReadingEngine();
   const reader = useReaderState();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [dismissedErrorId, setDismissedErrorId] = useState<number | null>(null);
+  const isKeyErrorModalOpen = !!apiKeyError && apiKeyError.id !== dismissedErrorId;
 
   const openSettings = () => setIsSettingsOpen(true);
   const closeSettings = () => setIsSettingsOpen(false);
@@ -26,6 +31,7 @@ export default function App() {
     readingLineIndex: reader.readingLineIndex,
     currentPageIndex: reader.currentPageIndex,
     isPlaying: reader.isPlaying,
+    playbackRate,
     onLineChange: (pageIndex, lineIndex) => {
       reader.setReadingPageIndex(pageIndex);
       reader.setReadingLineIndex(lineIndex);
@@ -34,7 +40,7 @@ export default function App() {
       reader.setCurrentPageIndex(pageIndex);
     },
     onFinish: () => {
-      reader.setIsPlaying(false);
+      reader.stopPlaying();
     },
   });
 
@@ -47,13 +53,9 @@ export default function App() {
 
   const handleUpload = async (file: File) => {
     const result = await uploadPdf(file);
-
     if (!result) return;
 
-    const pages = Array.isArray(result.pages)
-      ? result.pages
-      : [result.text];
-
+    const pages = Array.isArray(result.pages) ? result.pages : [result.text];
     const title = result.info?.Title || file.name.replace('.pdf', '');
 
     reader.setBookTitle(title);
@@ -65,7 +67,7 @@ export default function App() {
 
   const handleResetReader = () => {
     reader.setPages([]);
-    reader.setIsPlaying(false);
+    reader.stopPlaying();
     window.speechSynthesis.cancel();
   };
 
@@ -86,9 +88,33 @@ export default function App() {
     ? "app-btn-top-action bg-green-600 hover:bg-green-700 shadow-green-500/20"
     : "app-btn-top-action bg-violet-600 hover:bg-violet-700 shadow-violet-500/20";
 
+  const renderErrorModal = (message: string, onClose: () => void) => (
+    <div className="error-modal-overlay">
+      <div className={`error-modal-backdrop error-modal-backdrop--${theme}`} />
+      <div className={`error-modal-content error-modal-content--${theme}`}>
+        <div className="error-modal-icon-wrapper">
+          <div className={`error-modal-icon error-modal-icon--${theme}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+        </div>
+        <h2 className={`error-modal-title error-modal-title--${theme}`}>
+          Ops! Algo deu errado
+        </h2>
+        <p className={`error-modal-message error-modal-message--${theme}`}>
+          {message}
+        </p>
+        <button onClick={onClose} className={`error-modal-button error-modal-button--${theme}`}>
+          OK
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className={containerClass}>
-      {/* ThemeSwitch no canto superior direito (apenas na tela inicial) */}
       {showUploadArea && (
         <div className="fixed top-6 right-6 z-40">
           <ThemeSwitch isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
@@ -98,24 +124,12 @@ export default function App() {
       <div className="app-header">
         {showHeader && (
           <button onClick={handleResetReader} className={changePdfClass}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="app-btn-change-pdf-icon"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7 7-7"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" className="app-btn-change-pdf-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7 7-7" />
             </svg>
             Trocar o PDF
           </button>
         )}
-
         {showTopButton && (
           <button onClick={reader.handleTopButton} className={topButtonClass}>
             {topButtonText}
@@ -137,11 +151,7 @@ export default function App() {
 
         {showUploadArea && (
           <div className="app-input-container">
-            <InputArea
-              onUpload={handleUpload}
-              disabled={loading}
-              isDarkMode={isDarkMode}
-            />
+            <InputArea onUpload={handleUpload} disabled={loading} isDarkMode={isDarkMode} />
           </div>
         )}
 
@@ -163,7 +173,8 @@ export default function App() {
       {hasBook && (
         <AudioPlayer
           isPlaying={reader.isPlaying}
-          setIsPlaying={reader.setIsPlaying}
+          onPlay={reader.startPlaying}
+          onPause={reader.stopPlaying}
           readingPageIndex={reader.readingPageIndex}
           readingLineIndex={reader.readingLineIndex}
           canGoToPrevPage={reader.canGoToPrevPage}
@@ -181,48 +192,20 @@ export default function App() {
         &copy; 2025 Enzo Klai Roth - Projeto Desenvolvido para portfolio
       </footer>
 
-      {error && (
-        <div className="error-modal-overlay">
-          <div className={`error-modal-backdrop error-modal-backdrop--${theme}`} />
-          <div className={`error-modal-content error-modal-content--${theme}`}>
-            <div className="error-modal-icon-wrapper">
-              <div className={`error-modal-icon error-modal-icon--${theme}`}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <h2 className={`error-modal-title error-modal-title--${theme}`}>
-              Ops! Algo deu errado
-            </h2>
-            <p className={`error-modal-message error-modal-message--${theme}`}>
-              {error}
-            </p>
-            <button
-              onClick={clearError}
-              className={`error-modal-button error-modal-button--${theme}`}
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
+      {error && renderErrorModal(error, clearError)}
+
+      {isKeyErrorModalOpen && renderErrorModal(apiKeyError!.message, () => setDismissedErrorId(apiKeyError!.id))}
 
       <SettingsDrawer
         isOpen={isSettingsOpen}
         onClose={closeSettings}
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
+        playbackRate={playbackRate}
+        onPlaybackRateChange={setPlaybackRate}
+        isPlaying={reader.isPlaying}
+        onPause={reader.stopPlaying}
+        registerOnPlayStart={reader.registerOnPlayStart}
       />
     </div>
   );

@@ -343,6 +343,16 @@
   .theme-switch-input:checked + .theme-switch-slider .theme-switch-cloud {
     opacity: 1 !important;
   }
+  /* ==================== AUDIO PLAYER SPEED BUTTON ==================== */
+
+  .audio-player-btn-speed {
+    @apply w-12 h-12 rounded-full transition-all flex items-center justify-center
+           bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300;
+  }
+
+  .audio-player-btn-speed--default {
+    @apply bg-violet-100 text-violet-700 border-violet-300 hover:bg-violet-200;
+  }
 }
 
 @keyframes slideInFromTop {
