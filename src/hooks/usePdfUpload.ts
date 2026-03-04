@@ -13,16 +13,24 @@ export const usePdfUpload = () => {
       const result = await extractTextFromPDF(file);
       return result;
     } catch (err) {
-      setError("Erro ao processar o PDF.");
-      throw err;
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao processar o PDF.";
+
+      setError(errorMessage);
+      return null;
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   return {
     uploadPdf,
     loading,
     error,
+    clearError,
   };
 };

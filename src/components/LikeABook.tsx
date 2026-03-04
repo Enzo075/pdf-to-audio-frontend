@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 interface Props {
     pages: string[];
@@ -7,6 +7,7 @@ interface Props {
     readingLineIndex: number;
     bookTitle: string;
     isDarkMode: boolean;
+    isPlaying: boolean;
     onLineSelection: (index: number) => void;
     onPageChange: (page: number) => void;
 }
@@ -18,10 +19,12 @@ export const LikeABook = ({
     readingLineIndex,
     bookTitle,
     isDarkMode,
+    isPlaying,
     onLineSelection,
     onPageChange,
 }: Props) => {
     const lastTap = useRef<number>(0);
+    const activeLineRef = useRef<HTMLSpanElement>(null);
 
     const getLines = (text: string) => {
         return text ? text.split(/(?<=[.!?])\s+|\n/).filter((l) => l.trim() !== '') : [];
@@ -34,6 +37,15 @@ export const LikeABook = ({
         }
         lastTap.current = now;
     }, [onLineSelection]);
+
+    useEffect(() => {
+        if (currentPageIndex === readingPageIndex && activeLineRef.current) {
+            activeLineRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        }
+    }, [isPlaying, readingLineIndex, currentPageIndex, readingPageIndex]);
 
     const currentLines = getLines(pages[currentPageIndex]);
 
@@ -52,20 +64,24 @@ export const LikeABook = ({
 
     return (
         <div className="book-container">
-            <div className={`book-page-wrapper ${isDarkMode ? 'book-page-wrapper--dark' : 'book-page-wrapper--light'}`}>
-                <div className="book-content">
-                    {currentLines.map((line, index) => (
-                        <span
-                            key={index}
-                            onDoubleClick={() => onLineSelection(index)}
-                            onTouchEnd={() => handleTouch(index)}
-                            className={getLineClasses(index)}
-                        >
-                            {line}
-                        </span>
-                    ))}
-                </div>
+            <div className={`book-page-wrapper book-page-wrapper--fixed ${isDarkMode ? 'book-page-wrapper--dark' : 'book-page-wrapper--light'}`}>
+                <div className={`book-content book-content--scrollable ${isDarkMode ? 'book-content--dark' : 'book-content--light'}`}>
+                    {currentLines.map((line, index) => {
+                        const isActiveReadingLine = index === readingLineIndex && currentPageIndex === readingPageIndex;
 
+                        return (
+                            <span
+                                key={index}
+                                ref={isActiveReadingLine ? activeLineRef : null}
+                                onDoubleClick={() => onLineSelection(index)}
+                                onTouchEnd={() => handleTouch(index)}
+                                className={getLineClasses(index)}
+                            >
+                                {line}
+                            </span>
+                        );
+                    })}
+                </div>
                 <div className="book-footer">
                     <span className="book-title">{bookTitle}</span>
                     <span>
@@ -74,7 +90,6 @@ export const LikeABook = ({
                 </div>
             </div>
 
-            {/* Page Navigation */}
             <div className="book-navigation">
                 <div className="book-navigation-controls">
                     <span className="book-navigation-label">Página</span>

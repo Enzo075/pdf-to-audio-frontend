@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useMemo } from "react";
 import { parseTextToLines } from "../utils/textParser";
 
 export const useReaderState = () => {
@@ -10,26 +10,68 @@ export const useReaderState = () => {
   const [readingLineIndex, setReadingLineIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const handleLineSkip = (dir: "next" | "prev") => {
-    const lines = parseTextToLines(pages[readingPageIndex]);
-    const next = dir === "next" ? readingLineIndex + 1 : readingLineIndex - 1;
+  const onPlayStartCallbacks = useRef<Set<() => void>>(new Set());
 
-    if (next >= 0 && next < lines.length) {
-      setReadingLineIndex(next);
-      // Se estava tocando, força reiniciar leitura na nova linha
-      if (isPlaying) {
-        setIsPlaying(false);
-        setTimeout(() => setIsPlaying(true), 50);
+  const registerOnPlayStart = (cb: () => void) => {
+    onPlayStartCallbacks.current.add(cb);
+    return () => onPlayStartCallbacks.current.delete(cb);
+  };
+
+  const startPlaying = () => {
+    onPlayStartCallbacks.current.forEach((cb) => cb());
+    setIsPlaying(true);
+  };
+
+  const stopPlaying = () => {
+    setIsPlaying(false);
+  };
+
+  const handleLineSkip = (dir: "next" | "prev") => {
+    const currentLines = parseTextToLines(pages[readingPageIndex]);
+
+    if (dir === "next") {
+      const nextLine = readingLineIndex + 1;
+
+      // Ainda há linha na página atual
+      if (nextLine < currentLines.length) {
+        setReadingLineIndex(nextLine);
+      } else {
+        // Procurar próxima página com texto
+        for (let i = readingPageIndex + 1; i < pages.length; i++) {
+          const nextLines = parseTextToLines(pages[i]);
+          if (nextLines.length > 0) {
+            setReadingPageIndex(i);
+            setReadingLineIndex(0);
+            setCurrentPageIndex(i);
+            break;
+          }
+        }
       }
-    } else if (dir === "next" && readingPageIndex + 1 < pages.length) {
-      setReadingPageIndex(readingPageIndex + 1);
-      setReadingLineIndex(0);
-      setCurrentPageIndex(readingPageIndex + 1);
-      // Se estava tocando, força reiniciar leitura na nova página
-      if (isPlaying) {
-        setIsPlaying(false);
-        setTimeout(() => setIsPlaying(true), 50);
+    }
+
+    if (dir === "prev") {
+      const prevLine = readingLineIndex - 1;
+
+      // Ainda há linha na página atual
+      if (prevLine >= 0) {
+        setReadingLineIndex(prevLine);
+      } else {
+        // Procurar página anterior com texto
+        for (let i = readingPageIndex - 1; i >= 0; i--) {
+          const prevLines = parseTextToLines(pages[i]);
+          if (prevLines.length > 0) {
+            setReadingPageIndex(i);
+            setReadingLineIndex(prevLines.length - 1);
+            setCurrentPageIndex(i);
+            break;
+          }
+        }
       }
+    }
+
+    if (isPlaying) {
+      stopPlaying();
+      setTimeout(() => startPlaying(), 50);
     }
   };
 
@@ -42,7 +84,7 @@ export const useReaderState = () => {
 
   const handleLineSelection = (index: number) => {
     window.speechSynthesis.cancel();
-    setIsPlaying(false);
+    stopPlaying();
     setReadingPageIndex(currentPageIndex);
     setReadingLineIndex(index);
   };
@@ -57,17 +99,60 @@ export const useReaderState = () => {
       setCurrentPageIndex(0);
       setReadingPageIndex(0);
       setReadingLineIndex(0);
-      setIsPlaying(false);
+      stopPlaying();
       window.speechSynthesis.cancel();
     } else {
       window.speechSynthesis.cancel();
       setReadingPageIndex(currentPageIndex);
       setReadingLineIndex(0);
-      // Força reiniciar para garantir que inicia leitura
-      setIsPlaying(false);
-      setTimeout(() => setIsPlaying(true), 50);
+      stopPlaying();
+      setTimeout(() => startPlaying(), 50);
     }
   };
+
+  const canGoToPrevPage = useMemo(() => {
+    return currentPageIndex > 0;
+  }, [currentPageIndex]);
+
+  const canGoToNextPage = useMemo(() => {
+    return currentPageIndex < pages.length - 1;
+  }, [currentPageIndex, pages.length]);
+
+  const canGoToPrevLine = useMemo(() => {
+    // Se não estiver na primeira linha da página atual, pode voltar
+    if (readingLineIndex > 0) {
+      return true;
+    }
+
+    // Está na primeira linha (índice 0) - verificar se existe página anterior com texto
+    for (let i = readingPageIndex - 1; i >= 0; i--) {
+      const lines = parseTextToLines(pages[i]);
+      if (lines.length > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [readingPageIndex, readingLineIndex, pages]);
+
+  const canGoToNextLine = useMemo(() => {
+    const currentLines = parseTextToLines(pages[readingPageIndex]);
+
+    // Se não estiver na última linha da página atual, pode avançar
+    if (readingLineIndex < currentLines.length - 1) {
+      return true;
+    }
+
+    // Está na última linha - verificar se existe próxima página com texto
+    for (let i = readingPageIndex + 1; i < pages.length; i++) {
+      const lines = parseTextToLines(pages[i]);
+      if (lines.length > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [readingPageIndex, readingLineIndex, pages]);
 
   return {
     pages,
@@ -81,12 +166,18 @@ export const useReaderState = () => {
     readingPageIndex,
     readingLineIndex,
     isPlaying,
-    setIsPlaying,
+    startPlaying,
+    stopPlaying,
+    registerOnPlayStart,
     handleLineSkip,
     handlePageSkip,
     handleLineSelection,
     handleTopButton,
     isUserAway,
     isEndOfBook,
+    canGoToPrevPage,
+    canGoToNextPage,
+    canGoToPrevLine,
+    canGoToNextLine,
   };
 };

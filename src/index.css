@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Importa estilos organizados por camadas */
 @import "./styles/globals.css";
 @import "./styles/layout.css";
 @import "./styles/components.css";
