@@ -5,7 +5,6 @@ import type { ReadingEngine, TTSProvider, ApiKeyError } from './reading.context'
 
 const STORAGE_KEY_ENGINE = 'reading-engine';
 const STORAGE_KEY_PROVIDER = 'reading-provider';
-const STORAGE_KEY_API_KEY = 'reading-api-key';
 
 export function ReadingProvider({ children }: { children: ReactNode }) {
     const [readingEngine, setReadingEngineState] = useState<ReadingEngine>(() => {
@@ -18,9 +17,7 @@ export function ReadingProvider({ children }: { children: ReactNode }) {
         return (stored === 'openai' || stored === 'google' || stored === 'azure') ? stored : 'google';
     });
 
-    const [apiKey, setApiKeyState] = useState<string>(() => {
-        return localStorage.getItem(STORAGE_KEY_API_KEY) || '';
-    });
+    const [apiKey, setApiKeyState] = useState<string>('');
 
     const [apiKeyError, setApiKeyError] = useState<ApiKeyError>(null);
 
@@ -36,7 +33,6 @@ export function ReadingProvider({ children }: { children: ReactNode }) {
 
     const setApiKey = (key: string) => {
         setApiKeyState(key);
-        localStorage.setItem(STORAGE_KEY_API_KEY, key);
     };
 
     return (

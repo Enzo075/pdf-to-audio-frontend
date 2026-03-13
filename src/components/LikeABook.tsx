@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
+import { parseTextToLines } from "../utils/textParser";
 
 interface Props {
     pages: string[];
@@ -26,10 +27,6 @@ export const LikeABook = ({
     const lastTap = useRef<number>(0);
     const activeLineRef = useRef<HTMLSpanElement>(null);
 
-    const getLines = (text: string) => {
-        return text ? text.split(/(?<=[.!?])\s+|\n/).filter((l) => l.trim() !== '') : [];
-    };
-
     const handleTouch = useCallback((index: number) => {
         const now = performance.now();
         if (now - lastTap.current < 300) {
@@ -47,7 +44,7 @@ export const LikeABook = ({
         }
     }, [isPlaying, readingLineIndex, currentPageIndex, readingPageIndex]);
 
-    const currentLines = getLines(pages[currentPageIndex]);
+    const currentLines = parseTextToLines(pages[currentPageIndex]);
 
     const getLineClasses = (index: number) => {
         const isReading = index === readingLineIndex && currentPageIndex === readingPageIndex;

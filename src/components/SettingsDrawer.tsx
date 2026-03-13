@@ -69,11 +69,19 @@ export const SettingsDrawer = ({
         }
     }, [isPlaying]);
 
+    const handleEngineChange = (engine: 'browser' | 'api') => {
+        if (isPlaying) {
+            window.speechSynthesis.cancel();
+            onPause();
+        }
+        setReadingEngine(engine);
+    };
+
     const inputBorderClass = (() => {
         if (!isProviderSelected) {
             return isDarkMode
                 ? 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed'
-                : 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed';
+                : 'bg-white border-slate-300 text-slate-400 cursor-not-allowed';
         }
         if (hasError) {
             return 'bg-transparent border-red-500 text-red-400 ring-2 ring-red-500/30';
@@ -83,11 +91,17 @@ export const SettingsDrawer = ({
         }
         return isDarkMode
             ? 'bg-slate-800 border-slate-700 text-slate-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
-            : 'bg-white border-slate-300 text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500';
+            : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500';
     })();
 
     const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedProvider(e.target.value as TTSProvider | typeof NO_PROVIDER);
+        const newProvider = e.target.value as TTSProvider | typeof NO_PROVIDER;
+
+        if (isPlaying) onPause();
+        setApiKey('');
+        setApiKeyError(null);
+        setSelectedProvider(newProvider);
+
         setKeyDraft('');
         setJustApplied(false);
         setAppliedKey(null);
@@ -103,16 +117,16 @@ export const SettingsDrawer = ({
         setApiKeyError(null);
     };
 
-    const btnBase = 'p-3 rounded-xl border font-bold text-sm transition-all';
+    const btnBase = 'p-3 rounded-xl border font-bold text-sm transition-all cursor-pointer';
     const btnActive = isDarkMode
         ? 'bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/30'
         : 'bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/20';
     const btnInactive = isDarkMode
-        ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
-        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100';
+        ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:border-gray-600'
+        : 'bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-200 hover:border-gray-300';
     const btnDisabled = isDarkMode
         ? 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed'
-        : 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed';
+        : 'bg-white border-slate-300 text-slate-400 cursor-not-allowed';
 
     if (!isOpen) return null;
 
@@ -125,8 +139,8 @@ export const SettingsDrawer = ({
                     <h2 className={`settings-drawer-title ${isDarkMode ? 'settings-drawer-title--dark' : 'settings-drawer-title--light'}`}>
                         Configurações
                     </h2>
-                    <button onClick={onClose} className="settings-drawer-close-btn" aria-label="Fechar configurações">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="settings-drawer-close-icon">
+                    <button onClick={onClose} className={`settings-drawer-close-btn settings-drawer-close-btn--${isDarkMode ? 'dark' : 'light'}`} aria-label="Fechar configurações">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className={`settings-drawer-close-icon--${isDarkMode ? 'dark' : 'light'}`}>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -176,13 +190,13 @@ export const SettingsDrawer = ({
                         <div className="settings-section-content">
                             <div className="grid grid-cols-2 gap-2">
                                 <button
-                                    onClick={() => setReadingEngine('browser')}
+                                    onClick={() => handleEngineChange('browser')}
                                     className={`${btnBase} ${readingEngine === 'browser' ? btnActive : btnInactive}`}
                                 >
                                     Navegador
                                 </button>
                                 <button
-                                    onClick={() => setReadingEngine('api')}
+                                    onClick={() => handleEngineChange('api')}
                                     className={`${btnBase} ${readingEngine === 'api' ? btnActive : btnInactive}`}
                                 >
                                     Usar API
@@ -204,7 +218,7 @@ export const SettingsDrawer = ({
                                     className={`w-full p-3 rounded-xl border font-semibold text-sm transition-all appearance-none cursor-pointer
                                         ${isDarkMode
                                             ? 'bg-slate-800 border-slate-700 text-slate-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
-                                            : 'bg-white border-slate-300 text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
+                                            : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
                                         }`}
                                 >
                                     <option value={NO_PROVIDER} disabled>Selecione o provider</option>

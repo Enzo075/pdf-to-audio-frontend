@@ -7,15 +7,17 @@
 
   .app-btn-change-pdf {
     @apply flex items-center gap-2 px-4 py-2 rounded-full shadow-sm 
-           text-sm font-bold transition-all border;
+         text-sm font-bold transition-all border cursor-pointer;
   }
 
   .app-btn-change-pdf--light {
-    @apply bg-white border-slate-200 text-slate-600;
+    @apply bg-white border-slate-200 text-slate-600 
+    hover:bg-slate-100 active:scale-95;
   }
 
   .app-btn-change-pdf--dark {
-    @apply bg-slate-900 border-slate-700 text-slate-300;
+    @apply bg-slate-900 border-slate-700 text-slate-300 
+    hover:bg-slate-800 active:scale-95;
   }
 
   .app-btn-change-pdf-icon {
@@ -24,7 +26,7 @@
 
   .app-btn-top-action {
     @apply px-5 py-2 rounded-full text-white text-sm font-bold 
-           shadow-lg transition-all active:scale-95;
+           shadow-lg transition-all active:scale-95 cursor-pointer;
     animation: slideInFromRight 0.3s ease-out;
   }
 
@@ -196,20 +198,26 @@
     @apply p-2 rounded-lg transition-colors;
   }
 
-  .settings-drawer-close-btn:hover {
-    @apply bg-slate-100 dark:bg-slate-800;
+  .settings-drawer-close-btn--light:hover {
+    @apply bg-slate-100 cursor-pointer;
   }
 
-  .settings-drawer-close-icon {
-    @apply w-6 h-6 text-slate-600 dark:text-slate-400;
+  .settings-drawer-close-btn--dark:hover {
+    @apply bg-slate-700 cursor-pointer;
   }
 
-  /* Content */
+  .settings-drawer-close-icon--light {
+    @apply w-6 h-6 text-slate-600;
+  }
+
+  .settings-drawer-close-icon--dark {
+    @apply w-6 h-6 text-slate-400;
+  }
+
   .settings-drawer-content {
     @apply flex-1 overflow-y-auto p-6 space-y-6;
   }
 
-  /* Sections */
   .settings-section {
     @apply space-y-3;
   }
@@ -230,7 +238,6 @@
     @apply space-y-2;
   }
 
-  /* Theme Toggle */
   .settings-theme-toggle {
     @apply w-full flex items-center gap-3 p-4 rounded-xl 
          transition-all shadow-sm border;
@@ -260,7 +267,6 @@
     @apply text-slate-200;
   }
 
-  /* Placeholder */
   .settings-placeholder {
     @apply p-4 rounded-lg border-2 border-dashed;
   }
@@ -352,16 +358,5 @@
 
   .audio-player-btn-speed--default {
     @apply bg-violet-100 text-violet-700 border-violet-300 hover:bg-violet-200;
-  }
-}
-
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-1rem) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }

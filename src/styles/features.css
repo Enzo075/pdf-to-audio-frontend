@@ -66,7 +66,7 @@
   }
 
   .audio-player-btn-skip {
-    @apply text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors;
+    @apply text-xl p-2 text-slate-400 hover:text-violet-700 transition-colors cursor-pointer;
   }
 
   .audio-player-btn-skip--disabled {
@@ -80,7 +80,7 @@
   .audio-player-btn-play {
     @apply p-6 bg-violet-600 hover:bg-violet-700 rounded-full 
          transition-all shadow-xl shadow-violet-500/20 active:scale-90
-         text-white;
+         text-white cursor-pointer;
   }
 
   .audio-player-theme-wrapper {
@@ -89,17 +89,17 @@
   }
 
   .audio-player-theme-btn {
-    @apply p-3 rounded-2xl transition-all text-xl shadow-sm border;
+    @apply p-3 rounded-2xl transition-all text-xl shadow-sm cursor-pointer border;
   }
 
   .audio-player-theme-btn--light {
     @apply bg-white border-gray-200
-    hover:bg-gray-50 hover:border-gray-200 hover:shadow-md;
+    hover:bg-gray-100 hover:border-gray-200 hover:shadow-md;
   }
 
   .audio-player-theme-btn--dark {
-    @apply bg-slate-800 border-slate-700
-         hover:bg-slate-700 hover:shadow-md;
+    @apply bg-slate-900 border-slate-800
+         hover:bg-slate-800 hover:shadow-md;
   }
 
   .audio-player-theme-btn:active {
