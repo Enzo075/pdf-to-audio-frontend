@@ -3,6 +3,9 @@ import { ThemeSwitch } from './ThemeSwitch';
 import { useReadingEngine } from '../hooks/useReadingEngine';
 import type { TTSProvider } from '../contexts/reading.context';
 
+import * as Select from '@radix-ui/react-select';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
+
 interface Props {
     isOpen: boolean;
     onClose: () => void;
@@ -93,19 +96,6 @@ export const SettingsDrawer = ({
             ? 'bg-slate-800 border-slate-700 text-slate-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
             : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500';
     })();
-
-    const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newProvider = e.target.value as TTSProvider | typeof NO_PROVIDER;
-
-        if (isPlaying) onPause();
-        setApiKey('');
-        setApiKeyError(null);
-        setSelectedProvider(newProvider);
-
-        setKeyDraft('');
-        setJustApplied(false);
-        setAppliedKey(null);
-    };
 
     const handleApply = () => {
         if (!keyDraft.trim() || !isProviderSelected) return;
@@ -212,20 +202,56 @@ export const SettingsDrawer = ({
                             </h3>
                             <div className="settings-section-content flex flex-col gap-3">
 
-                                <select
+                                <Select.Root
                                     value={selectedProvider}
-                                    onChange={handleProviderChange}
-                                    className={`w-full p-3 rounded-xl border font-semibold text-sm transition-all appearance-none cursor-pointer
-                                        ${isDarkMode
-                                            ? 'bg-slate-800 border-slate-700 text-slate-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
-                                            : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500'
-                                        }`}
+                                    onValueChange={(value) => {
+                                        const newProvider = value as TTSProvider | typeof NO_PROVIDER;
+                                        if (isPlaying) onPause();
+                                        setApiKey('');
+                                        setApiKeyError(null);
+                                        setSelectedProvider(newProvider);
+                                        setKeyDraft('');
+                                        setJustApplied(false);
+                                        setAppliedKey(null);
+                                    }}
                                 >
-                                    <option value={NO_PROVIDER} disabled>Selecione o provider</option>
-                                    {PROVIDERS.map((p) => (
-                                        <option key={p.value} value={p.value}>{p.label}</option>
-                                    ))}
-                                </select>
+                                    <Select.Trigger
+                                        className={`select-trigger ${selectedProvider
+                                                ? isDarkMode
+                                                    ? 'select-trigger--selected-dark'
+                                                    : 'select-trigger--selected-light'
+                                                : isDarkMode
+                                                    ? 'select-trigger--dark'
+                                                    : 'select-trigger--light'
+                                            }`}
+                                        aria-label="Selecione o provider de TTS"
+                                    >
+                                        <Select.Value placeholder="Selecione o provider" />
+                                        <Select.Icon className="select-icon">
+                                            <ChevronDownIcon />
+                                        </Select.Icon>
+                                    </Select.Trigger>
+
+                                    <Select.Content
+                                        className={`select-content select-content--${isDarkMode ? 'dark' : 'light'}`}
+                                        position="popper"
+                                        sideOffset={6}
+                                    >
+
+                                        <Select.Viewport className="select-viewport">
+                                            {PROVIDERS.map((p) => (
+                                                <Select.Item
+                                                    key={p.value}
+                                                    value={p.value}
+                                                    className={`select-item select-item--${isDarkMode ? 'dark' : 'light'}`}
+                                                >
+                                                    <Select.ItemText>{p.label}</Select.ItemText>
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Viewport>
+
+                                    </Select.Content>
+                                </Select.Root>
 
                                 <input
                                     type="password"
