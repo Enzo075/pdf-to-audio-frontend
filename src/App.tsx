@@ -51,11 +51,24 @@ export default function App() {
   const isRestartMode = reader.isEndOfBook && reader.currentPageIndex === reader.pages.length - 1;
   const showTopButton = showHeader && (reader.isUserAway || reader.isEndOfBook);
 
-  const handleUpload = async (file: File) => {
-    const result = await uploadPdf(file);
-    if (!result) return;
+  interface RenderResponse {
+    pages: (string | string[])[];
+    info?: {
+      Title?: string;
+    };
+  }
 
-    const pages = Array.isArray(result.pages) ? result.pages : [result.text];
+  const handleUpload = async (file: File) => {
+    const result = (await uploadPdf(file)) as unknown as RenderResponse;
+
+    if (!result || !result.pages) return;
+    const pages: string[] = result.pages.map((p) => {
+      if (Array.isArray(p)) {
+        return p.join('\n');
+      }
+      return typeof p === 'string' ? p : "";
+    });
+
     const title = result.info?.Title || file.name.replace('.pdf', '');
 
     reader.setBookTitle(title);

@@ -7,15 +7,17 @@
 
   .app-btn-change-pdf {
     @apply flex items-center gap-2 px-4 py-2 rounded-full shadow-sm 
-           text-sm font-bold transition-all border;
+         text-sm font-bold transition-all border cursor-pointer;
   }
 
   .app-btn-change-pdf--light {
-    @apply bg-white border-slate-200 text-slate-600;
+    @apply bg-white border-slate-200 text-slate-600 
+    hover:bg-slate-100 active:scale-95;
   }
 
   .app-btn-change-pdf--dark {
-    @apply bg-slate-900 border-slate-700 text-slate-300;
+    @apply bg-slate-900 border-slate-700 text-slate-300 
+    hover:bg-slate-800 active:scale-95;
   }
 
   .app-btn-change-pdf-icon {
@@ -24,7 +26,7 @@
 
   .app-btn-top-action {
     @apply px-5 py-2 rounded-full text-white text-sm font-bold 
-           shadow-lg transition-all active:scale-95;
+           shadow-lg transition-all active:scale-95 cursor-pointer;
     animation: slideInFromRight 0.3s ease-out;
   }
 
@@ -55,8 +57,12 @@
 
   /* ==================== ÍCONES ==================== */
 
-  .input-area-icon-wrapper {
+  .input-area-icon-wrapper--light {
     @apply p-5 rounded-full bg-violet-100 text-violet-600;
+  }
+
+  .input-area-icon-wrapper--dark {
+    @apply p-5 rounded-full bg-violet-900/80 text-violet-200;
   }
 
   .input-area-icon {
@@ -196,20 +202,26 @@
     @apply p-2 rounded-lg transition-colors;
   }
 
-  .settings-drawer-close-btn:hover {
-    @apply bg-slate-100 dark:bg-slate-800;
+  .settings-drawer-close-btn--light:hover {
+    @apply bg-slate-100 cursor-pointer;
   }
 
-  .settings-drawer-close-icon {
-    @apply w-6 h-6 text-slate-600 dark:text-slate-400;
+  .settings-drawer-close-btn--dark:hover {
+    @apply bg-slate-700 cursor-pointer;
   }
 
-  /* Content */
+  .settings-drawer-close-icon--light {
+    @apply w-6 h-6 text-slate-600;
+  }
+
+  .settings-drawer-close-icon--dark {
+    @apply w-6 h-6 text-slate-400;
+  }
+
   .settings-drawer-content {
     @apply flex-1 overflow-y-auto p-6 space-y-6;
   }
 
-  /* Sections */
   .settings-section {
     @apply space-y-3;
   }
@@ -230,7 +242,6 @@
     @apply space-y-2;
   }
 
-  /* Theme Toggle */
   .settings-theme-toggle {
     @apply w-full flex items-center gap-3 p-4 rounded-xl 
          transition-all shadow-sm border;
@@ -260,7 +271,6 @@
     @apply text-slate-200;
   }
 
-  /* Placeholder */
   .settings-placeholder {
     @apply p-4 rounded-lg border-2 border-dashed;
   }
@@ -353,15 +363,167 @@
   .audio-player-btn-speed--default {
     @apply bg-violet-100 text-violet-700 border-violet-300 hover:bg-violet-200;
   }
-}
 
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-1rem) scale(0.95);
+  /* ==================== RADIX SELECT ==================== */
+
+  .select-trigger {
+    @apply w-full p-3 rounded-xl border font-semibold text-sm
+         flex items-center justify-between gap-2
+         transition-all duration-150 outline-none cursor-pointer select-none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+
+  .select-trigger--light {
+    @apply bg-slate-50 border-slate-300 text-slate-900 hover:bg-slate-100;
+  }
+
+  .select-trigger--light[data-state="open"] {
+    @apply border-violet-500 ring-2 ring-violet-500;
+  }
+
+  .select-trigger--dark {
+    @apply bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700;
+  }
+
+  .select-trigger--dark[data-state="open"] {
+    @apply border-violet-500 ring-2 ring-violet-500;
+  }
+
+  .select-trigger[data-placeholder] span {
+    @apply text-slate-400;
+  }
+
+  .select-icon {
+    @apply shrink-0 transition-transform duration-200 text-slate-400;
+  }
+
+  .select-trigger[data-state="open"] .select-icon {
+    @apply rotate-180;
+  }
+
+  .select-content {
+    @apply rounded-xl overflow-hidden z-50;
+    min-width: var(--radix-select-trigger-width);
+  }
+
+  .select-content--light {
+    @apply bg-white;
+    box-shadow:
+      0px 10px 38px -10px rgba(22, 23, 24, 0.25),
+      0px 10px 20px -15px rgba(22, 23, 24, 0.15);
+  }
+
+  .select-content--dark {
+    @apply bg-slate-800;
+    box-shadow:
+      0px 10px 38px -10px rgba(0, 0, 0, 0.5),
+      0px 10px 20px -15px rgba(0, 0, 0, 0.4);
+  }
+
+  .select-content[data-state="open"] {
+    animation: select-open 150ms ease-out;
+  }
+
+  .select-content[data-state="closed"] {
+    animation: select-close 100ms ease-in;
+  }
+
+  @keyframes select-open {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes select-close {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+
+  .select-viewport {
+    @apply p-1;
+  }
+
+  .select-item {
+    @apply relative flex items-center rounded-lg px-3 py-2 text-sm
+         font-semibold cursor-pointer select-none outline-none
+         transition-colors duration-100;
+  }
+
+  .select-item--light {
+    @apply text-slate-700;
+  }
+
+  .select-item--light[data-highlighted] {
+    @apply bg-violet-600 text-white;
+  }
+
+  .select-item--dark {
+    @apply text-slate-200;
+  }
+
+  .select-item--dark[data-highlighted] {
+    @apply bg-violet-600 text-white;
+  }
+
+  .select-item[data-disabled] {
+    @apply opacity-40 cursor-not-allowed pointer-events-none;
+  }
+
+  .select-scroll-btn {
+    @apply flex h-6 items-center justify-center cursor-default text-sm text-slate-400;
+  }
+  body[data-scroll-locked] {
+    overflow: auto !important;
+    margin-right: 0 !important;
+  }
+
+  .select-item--light:not(:hover):not(
+      [data-state="checked"]
+    )[data-highlighted] {
+    background-color: transparent;
+    color: theme(colors.slate.700);
+  }
+
+  .select-item--dark:not(:hover):not([data-state="checked"])[data-highlighted] {
+    background-color: transparent;
+    color: theme(colors.slate.200);
+  }
+
+  .select-trigger--selected-light,
+  .select-trigger--selected-dark {
+    @apply bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/30;
+  }
+
+  .select-trigger--selected-light:hover,
+  .select-trigger--selected-dark:hover {
+    @apply bg-violet-700;
+  }
+
+  .select-trigger--selected-light .select-icon,
+  .select-trigger--selected-dark .select-icon {
+    @apply text-white;
+  }
+
+  .select-trigger--selected-light[data-state="open"] {
+    @apply bg-slate-50 border-violet-500 text-slate-900 ring-2 ring-violet-500;
+  }
+
+  .select-trigger--selected-dark[data-state="open"] {
+    @apply bg-slate-800 border-violet-500 text-slate-200 ring-2 ring-violet-500;
+  }
+
+  .select-trigger--selected-light[data-state="open"] .select-icon,
+  .select-trigger--selected-dark[data-state="open"] .select-icon {
+    @apply text-slate-400;
   }
 }

@@ -39,7 +39,7 @@ export const InputArea = ({ onUpload, disabled = false, isDarkMode }: Props) => 
             <input {...getInputProps()} />
 
             <div className="input-area-content">
-                <div className="input-area-icon-wrapper">
+                <div className={`input-area-icon-wrapper--${isDarkMode ? 'dark' : 'light'}`}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="input-area-icon"

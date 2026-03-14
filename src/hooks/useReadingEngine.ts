@@ -1,10 +1,6 @@
 import { useContext } from "react";
 import { ReadingContext } from "../contexts/reading.context";
 
-/**
- * Hook customizado para consumir a engine de leitura
- * Lança erro se usado fora do ReadingProvider
- */
 export function useReadingEngine() {
   const context = useContext(ReadingContext);
 

@@ -66,7 +66,7 @@
   }
 
   .audio-player-btn-skip {
-    @apply text-xl p-2 text-slate-400 hover:text-violet-600 transition-colors;
+    @apply text-xl p-2 text-slate-400 hover:text-violet-700 transition-colors cursor-pointer;
   }
 
   .audio-player-btn-skip--disabled {
@@ -80,7 +80,7 @@
   .audio-player-btn-play {
     @apply p-6 bg-violet-600 hover:bg-violet-700 rounded-full 
          transition-all shadow-xl shadow-violet-500/20 active:scale-90
-         text-white;
+         text-white cursor-pointer;
   }
 
   .audio-player-theme-wrapper {
@@ -89,17 +89,17 @@
   }
 
   .audio-player-theme-btn {
-    @apply p-3 rounded-2xl transition-all text-xl shadow-sm border;
+    @apply p-3 rounded-2xl transition-all text-xl shadow-sm cursor-pointer border;
   }
 
   .audio-player-theme-btn--light {
     @apply bg-white border-gray-200
-    hover:bg-gray-50 hover:border-gray-200 hover:shadow-md;
+    hover:bg-gray-100 hover:border-gray-200 hover:shadow-md;
   }
 
   .audio-player-theme-btn--dark {
-    @apply bg-slate-800 border-slate-700
-         hover:bg-slate-700 hover:shadow-md;
+    @apply bg-slate-900 border-slate-800
+         hover:bg-slate-800 hover:shadow-md;
   }
 
   .audio-player-theme-btn:active {
@@ -299,28 +299,175 @@
     animation: fadeIn 1s ease-in;
   }
 
-  .loading-spinner-wrapper {
-    @apply relative w-20 h-20;
+  .loader {
+    --background: linear-gradient(135deg, #b822fd, #7f22fd);
+    --shadow: rgba(127, 34, 253, 0.5);
+    --page: rgba(255, 255, 255, 0.36);
+    --page-fold: rgba(255, 255, 255, 0.52);
+    --duration: 3s;
+    width: 200px;
+    height: 140px;
+    position: relative;
   }
 
-  .loading-spinner-outer {
-    @apply absolute inset-0 rounded-full border-4 
-           border-t-violet-600 border-r-transparent 
-           border-b-violet-600 border-l-transparent 
-           animate-spin;
-    animation-duration: 2s;
+  .loader:before,
+  .loader:after {
+    --r: -6deg;
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    width: 120px;
+    top: 80%;
+    box-shadow: 0 16px 12px var(--shadow);
+    transform: rotate(var(--r));
   }
 
-  .loading-spinner-middle {
-    @apply absolute inset-2 rounded-full border-4 
-           border-t-transparent border-r-purple-400 
-           border-b-transparent border-l-purple-400;
-    animation: spin 1.5s linear infinite reverse;
+  .loader:before {
+    left: 4px;
   }
 
-  .loading-spinner-core {
-    @apply absolute inset-6 bg-violet-600 rounded-full animate-pulse;
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+  .loader:after {
+    --r: 6deg;
+    right: 4px;
+  }
+
+  .loader div {
+    width: 100%;
+    height: 100%;
+    border-radius: 13px;
+    position: relative;
+    z-index: 1;
+    perspective: 600px;
+    box-shadow: 0 4px 6px var(--shadow);
+    background-image: var(--background);
+  }
+
+  .loader div ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: relative;
+  }
+
+  .loader div ul li {
+    --r: 180deg;
+    --o: 0;
+    --c: var(--page);
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    transform-origin: 100% 50%;
+    color: var(--c);
+    opacity: var(--o);
+    transform: rotateY(var(--r));
+    animation: var(--duration) ease infinite;
+  }
+
+  .loader div ul li:nth-child(2) {
+    --c: var(--page-fold);
+    animation-name: page-2;
+  }
+
+  .loader div ul li:nth-child(3) {
+    --c: var(--page-fold);
+    animation-name: page-3;
+  }
+
+  .loader div ul li:nth-child(4) {
+    --c: var(--page-fold);
+    animation-name: page-4;
+  }
+
+  .loader div ul li:nth-child(5) {
+    --c: var(--page-fold);
+    animation-name: page-5;
+  }
+
+  .loader div ul li svg {
+    width: 90px;
+    height: 120px;
+    display: block;
+  }
+
+  .loader div ul li:first-child {
+    --r: 0deg;
+    --o: 1;
+  }
+
+  .loader div ul li:last-child {
+    --o: 1;
+  }
+
+  @keyframes page-2 {
+    0% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    35%,
+    100% {
+      opacity: 0;
+    }
+    50%,
+    100% {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes page-3 {
+    15% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    35% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+    65%,
+    100% {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes page-4 {
+    30% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    65%,
+    100% {
+      opacity: 0;
+    }
+    80%,
+    100% {
+      transform: rotateY(0deg);
+    }
+  }
+
+  @keyframes page-5 {
+    45% {
+      transform: rotateY(180deg);
+      opacity: 0;
+    }
+    65% {
+      opacity: 1;
+    }
+    80%,
+    100% {
+      opacity: 0;
+    }
+    95%,
+    100% {
+      transform: rotateY(0deg);
+    }
   }
 
   .loading-text-wrapper {

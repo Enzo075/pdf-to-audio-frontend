@@ -3,6 +3,7 @@ import { SPEECH_CONFIG } from "../config/constants";
 import { parseTextToLines } from "../utils/textParser";
 import { useReadingEngine } from "./useReadingEngine";
 import type { ApiKeyError } from "../contexts/reading.context";
+import { API_BASE_URL } from "../config/constants";
 
 interface UseSpeechReaderProps {
   pages: string[];
@@ -32,8 +33,13 @@ export const useSpeechReader = ({
   onPageChange,
   onFinish,
 }: UseSpeechReaderProps) => {
-  const { readingEngine, apiProvider, apiKey, setApiKeyError } =
-    useReadingEngine();
+  const {
+    readingEngine,
+    setReadingEngine,
+    apiProvider,
+    apiKey,
+    setApiKeyError,
+  } = useReadingEngine();
 
   const pageRef = useRef(readingPageIndex);
   const lineRef = useRef(readingLineIndex);
@@ -42,6 +48,16 @@ export const useSpeechReader = ({
   const executionIdRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
   const errorIdRef = useRef(0);
+
+  const apiKeyRef = useRef(apiKey);
+  const readingEngineRef = useRef(readingEngine);
+  const setReadingEngineRef = useRef(setReadingEngine);
+
+  useEffect(() => {
+    apiKeyRef.current = apiKey;
+    readingEngineRef.current = readingEngine;
+    setReadingEngineRef.current = setReadingEngine;
+  }, [apiKey, readingEngine, setReadingEngine]);
 
   const makeApiKeyError = (message: string): ApiKeyError => ({
     message,
@@ -145,7 +161,7 @@ export const useSpeechReader = ({
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      const response = await fetch("/api/tts/generate", {
+      const response = await fetch(`${API_BASE_URL}/api/tts/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -209,8 +225,16 @@ export const useSpeechReader = ({
   };
 
   const speak = (pIndex: number, lIndex: number, execId: number) => {
-    const useAPI = readingEngine === "api" && apiProvider && apiKey?.trim();
-    if (useAPI) {
+    const currentEngine = readingEngineRef.current;
+    const currentApiKey = apiKeyRef.current;
+    const hasValidKey = currentApiKey && currentApiKey.trim().length > 0;
+
+    if (currentEngine === "api" && !hasValidKey) {
+      setReadingEngineRef.current("browser");
+      speakWithBrowser(pIndex, lIndex, execId);
+      return;
+    }
+    if (currentEngine === "api" && hasValidKey) {
       speakWithAPI(pIndex, lIndex, execId);
     } else {
       speakWithBrowser(pIndex, lIndex, execId);
