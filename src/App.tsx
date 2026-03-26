@@ -66,7 +66,7 @@ export default function App() {
       if (Array.isArray(p)) {
         return p.join('\n');
       }
-      return typeof p === 'string' ? p : "";
+      return typeof p === 'string' ? p : '';
     });
 
     const title = result.info?.Title || file.name.replace('.pdf', '');
@@ -88,18 +88,13 @@ export default function App() {
     setTheme(isDarkMode ? 'light' : 'dark');
   };
 
-  const containerClass = `app-container app-container--${theme}`;
-  const changePdfClass = `app-btn-change-pdf app-btn-change-pdf--${theme}`;
-  const subtitleClass = `app-logo-subtitle--${theme}`;
-  const footerClass = `app-footer app-footer--${theme}`;
-
   const topButtonText = isRestartMode
-    ? "Começar a leitura do início do PDF"
-    : "Continuar leitura desta página";
+    ? 'Começar a leitura do início do PDF'
+    : 'Continuar leitura desta página';
 
   const topButtonClass = isRestartMode
-    ? "app-btn-top-action bg-green-600 hover:bg-green-700 shadow-green-500/20"
-    : "app-btn-top-action bg-violet-600 hover:bg-violet-700 shadow-violet-500/20";
+    ? 'app-btn-top-action bg-green-600 hover:bg-green-700 shadow-green-500/20'
+    : 'app-btn-top-action bg-violet-600 hover:bg-violet-700 shadow-violet-500/20';
 
   const renderErrorModal = (message: string, onClose: () => void) => (
     <div className="error-modal-overlay">
@@ -108,8 +103,12 @@ export default function App() {
         <div className="error-modal-icon-wrapper">
           <div className={`error-modal-icon error-modal-icon--${theme}`}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
         </div>
@@ -127,17 +126,27 @@ export default function App() {
   );
 
   return (
-    <div className={containerClass}>
+    <div className={`app-container app-container--${theme}`}>
+
       {showUploadArea && (
-        <div className="fixed top-6 right-6 z-40">
+        <div className="app-theme-switch-wrapper">
           <ThemeSwitch isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
         </div>
       )}
 
       <div className="app-header">
         {showHeader && (
-          <button onClick={handleResetReader} className={changePdfClass}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="app-btn-change-pdf-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button
+            onClick={handleResetReader}
+            className={`app-btn-change-pdf app-btn-change-pdf--${theme}`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="app-btn-change-pdf-icon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7 7-7" />
             </svg>
             Trocar o PDF
@@ -154,7 +163,7 @@ export default function App() {
         <header className="app-logo-header">
           <h1 className="app-logo-title">
             PDF TO
-            <span className={subtitleClass}>AUDIO</span>
+            <span className={`app-logo-subtitle--${theme}`}>AUDIO</span>
           </h1>
         </header>
       )}
@@ -201,13 +210,16 @@ export default function App() {
         />
       )}
 
-      <footer className={footerClass}>
+      <footer className={`app-footer app-footer--${theme}`}>
         &copy; 2025 Enzo Klai Roth - Projeto Desenvolvido para portfolio
       </footer>
 
       {error && renderErrorModal(error, clearError)}
 
-      {isKeyErrorModalOpen && renderErrorModal(apiKeyError!.message, () => setDismissedErrorId(apiKeyError!.id))}
+      {isKeyErrorModalOpen && renderErrorModal(
+        apiKeyError!.message,
+        () => setDismissedErrorId(apiKeyError!.id)
+      )}
 
       <SettingsDrawer
         isOpen={isSettingsOpen}
