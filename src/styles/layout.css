@@ -50,6 +50,12 @@
     @apply w-full max-w-md;
   }
 
+  /* ==================== THEME SWITCH WRAPPER ==================== */
+
+  .app-theme-switch-wrapper {
+    @apply fixed top-6 right-6 z-40;
+  }
+
   /* ==================== FOOTER ==================== */
 
   .app-footer {

@@ -325,7 +325,25 @@
 
   /* ==================== THEME SWITCH ==================== */
 
+  .theme-switch-label {
+    @apply relative inline-block cursor-pointer;
+    width: 4em;
+    height: 2.2em;
+    font-size: 17px;
+  }
+
+  .theme-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    background-color: #2a2a2a;
+    transition: all 0.4s;
+  }
+
   .theme-switch-slider::before {
+    z-index: 2;
     content: "" !important;
     position: absolute !important;
     height: 1.2em !important;
@@ -342,6 +360,13 @@
     box-shadow: inset 15px -4px 0px 15px #ffcf48 !important;
   }
 
+  .theme-switch-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
   .theme-switch-input:checked + .theme-switch-slider {
     background-color: #00a6ff !important;
   }
@@ -353,6 +378,40 @@
   .theme-switch-input:checked + .theme-switch-slider .theme-switch-cloud {
     opacity: 1 !important;
   }
+
+  .theme-switch-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    width: 0.3125rem;
+    height: 0.3125rem;
+    transition: all 0.4s;
+  }
+
+  .theme-switch-star--1 {
+    left: 2.5em;
+    top: 0.5em;
+  }
+
+  .theme-switch-star--2 {
+    left: 2.2em;
+    top: 1.2em;
+  }
+
+  .theme-switch-star--3 {
+    left: 3em;
+    top: 0.9em;
+  }
+
+  .theme-switch-cloud {
+    position: absolute;
+    width: 3.5em;
+    bottom: -1.4em;
+    left: -1.1em;
+    opacity: 0;
+    transition: all 0.4s;
+  }
+
   /* ==================== AUDIO PLAYER SPEED BUTTON ==================== */
 
   .audio-player-btn-speed {
@@ -482,6 +541,7 @@
   .select-scroll-btn {
     @apply flex h-6 items-center justify-center cursor-default text-sm text-slate-400;
   }
+
   body[data-scroll-locked] {
     overflow: auto !important;
     margin-right: 0 !important;
@@ -525,5 +585,114 @@
   .select-trigger--selected-light[data-state="open"] .select-icon,
   .select-trigger--selected-dark[data-state="open"] .select-icon {
     @apply text-slate-400;
+  }
+
+  /* ==================== SETTINGS BUTTONS (RATE / ENGINE) ==================== */
+
+  .settings-rate-btn {
+    @apply p-3 rounded-xl border font-bold text-sm transition-all cursor-pointer;
+  }
+
+  .settings-rate-btn--active {
+    @apply bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/30;
+  }
+
+  .settings-rate-btn--inactive-light {
+    @apply bg-slate-50 border-slate-300 text-slate-700
+           hover:bg-slate-200 hover:border-gray-300;
+  }
+
+  .settings-rate-btn--inactive-dark {
+    @apply bg-slate-800 border-slate-700 text-slate-300
+           hover:bg-slate-700 hover:border-gray-600;
+  }
+
+  /* ==================== SETTINGS THEME ROW ==================== */
+
+  .settings-theme-row {
+    @apply flex items-center justify-between p-4 rounded-xl border shadow-sm transition-all;
+  }
+
+  .settings-theme-row--light {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  .settings-theme-row--dark {
+    background-color: #1e293b;
+    border-color: #475569;
+  }
+
+  .settings-theme-row-label {
+    @apply font-semibold;
+  }
+
+  .settings-theme-row-label--light {
+    @apply text-slate-700;
+  }
+
+  .settings-theme-row-label--dark {
+    @apply text-slate-200;
+  }
+
+  /* ==================== SETTINGS API INPUT ==================== */
+
+  .settings-api-input {
+    @apply w-full p-3 rounded-xl border font-mono text-sm transition-all outline-none;
+  }
+
+  .settings-api-input--light {
+    @apply bg-slate-50 border-slate-300 text-slate-900
+           focus:border-violet-500 focus:ring-2 focus:ring-violet-500;
+  }
+
+  .settings-api-input--dark {
+    @apply bg-slate-800 border-slate-700 text-slate-200
+           focus:border-violet-500 focus:ring-2 focus:ring-violet-500;
+  }
+
+  .settings-api-input--disabled-light {
+    @apply bg-white border-slate-300 text-slate-400 cursor-not-allowed;
+  }
+
+  .settings-api-input--disabled-dark {
+    @apply bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed;
+  }
+
+  .settings-api-input--error {
+    @apply bg-transparent border-red-500 text-red-400 ring-2 ring-red-500/30;
+  }
+
+  .settings-api-input--success {
+    @apply bg-transparent border-green-500 text-green-400 ring-2 ring-green-500/30;
+  }
+
+  /* ==================== SETTINGS APPLY BUTTON ==================== */
+
+  .settings-apply-btn {
+    @apply w-full p-3 rounded-xl border font-bold text-sm transition-all;
+  }
+
+  .settings-apply-btn--enabled {
+    @apply bg-violet-600 border-violet-500 text-white
+           hover:bg-violet-700 shadow-lg shadow-violet-500/20 cursor-pointer;
+  }
+
+  .settings-apply-btn--disabled-light {
+    @apply bg-white border-slate-300 text-slate-400 cursor-not-allowed;
+  }
+
+  .settings-apply-btn--disabled-dark {
+    @apply bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed;
+  }
+
+  /* ==================== SETTINGS GRIDS ==================== */
+
+  .settings-grid-2 {
+    @apply grid grid-cols-2 gap-2;
+  }
+
+  .settings-grid-3 {
+    @apply grid grid-cols-3 gap-2;
   }
 }
