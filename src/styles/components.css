@@ -695,4 +695,130 @@
   .settings-grid-3 {
     @apply grid grid-cols-3 gap-2;
   }
+
+  /* ==================== AUTH SCREEN — SOCIAL + DIVIDER + FLOATING LABEL ==================== */
+  .auth-card {
+    @apply rounded-2xl p-8 transition-colors;
+    width: 100%;
+    width: min(420px, calc(100% - 32px));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  }
+  .auth-card--light {
+    @apply bg-white;
+  }
+  .auth-card--dark {
+    @apply bg-slate-900;
+  }
+
+  .auth-social-btn {
+    @apply w-full flex items-center justify-center gap-3
+         py-3 px-4 rounded-full border
+         font-semibold text-sm transition-all cursor-pointer;
+  }
+  .auth-social-btn--light {
+    @apply bg-white border-slate-300 text-slate-700 hover:bg-slate-50;
+  }
+  .auth-social-btn--dark {
+    @apply bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700;
+  }
+
+  .auth-divider {
+    @apply flex items-center gap-3 my-4;
+  }
+  .auth-divider-line {
+    @apply flex-1 h-px;
+  }
+  .auth-divider-line--light {
+    @apply bg-slate-300;
+  }
+  .auth-divider-line--dark {
+    @apply bg-slate-700;
+  }
+  .auth-divider-text {
+    @apply text-base font-semibold;
+  }
+  .auth-divider-text--light {
+    @apply text-slate-400;
+  }
+  .auth-divider-text--dark {
+    @apply text-slate-500;
+  }
+
+  .auth-input-group {
+    @apply relative mb-2;
+  }
+
+  .auth-input {
+    @apply w-full py-2.5 px-5 rounded-full border
+         text-sm outline-none transition-all duration-200;
+  }
+  .auth-input--light {
+    @apply bg-white border-slate-300 text-slate-900;
+  }
+  .auth-input--dark {
+    @apply bg-slate-800 border-slate-700 text-slate-200;
+  }
+
+  /* Hover e focus via CSS puro — Tailwind não encadeia pseudo-classes em @apply */
+  .auth-input--light:hover {
+    border-color: theme("colors.violet.600");
+  }
+  .auth-input--dark:hover {
+    border-color: theme("colors.violet.600");
+  }
+
+  .auth-input--light:focus {
+    border-color: theme("colors.violet.700");
+    box-shadow: 0 0 0 3px rgb(139 92 246 / 0.2);
+  }
+  .auth-input--dark:focus {
+    border-color: theme("colors.violet.700");
+    box-shadow: 0 0 0 3px rgb(139 92 246 / 0.2);
+  }
+
+  .auth-input-label {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.875rem;
+    pointer-events: none;
+    padding: 0 4px;
+    transition: all 0.2s ease;
+  }
+  .auth-input-label--light {
+    color: theme("colors.slate.400");
+    background: transparent;
+  }
+  .auth-input-label--dark {
+    color: theme("colors.slate.500");
+    background: transparent;
+  }
+
+  /* Floating label — focus ou campo preenchido */
+  .auth-input-group:focus-within .auth-input-label,
+  .auth-input-group input:not(:placeholder-shown) + .auth-input-label {
+    top: 0;
+    font-size: 0.7rem;
+  }
+
+  .auth-input-group:focus-within .auth-input-label--light,
+  .auth-input-group input:not(:placeholder-shown) + .auth-input-label--light {
+    color: theme("colors.violet.600");
+    background: white;
+  }
+
+  .auth-input-group:focus-within .auth-input-label--dark,
+  .auth-input-group input:not(:placeholder-shown) + .auth-input-label--dark {
+    color: theme("colors.violet.400");
+    background: theme("colors.slate.900");
+  }
+
+  .auth-error {
+    @apply text-sm text-red-500 bg-red-50 border border-red-200
+         rounded-xl px-4 py-3 text-center mt-1;
+  }
+  .auth-error--dark {
+    @apply bg-red-900/20 border-red-800 text-red-400;
+  }
 }

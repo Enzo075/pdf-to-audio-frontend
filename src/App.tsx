@@ -10,6 +10,8 @@ import { useSpeechReader } from './hooks/useSpeechReader';
 import { useTheme } from './hooks/useTheme';
 import { useReadingEngine } from './hooks/useReadingEngine';
 import { ThemeSwitch } from './components/ThemeSwitch';
+import { useAuth } from './hooks/useAuth';
+import AuthScreen from './components/AuthScreen';
 
 export default function App() {
   const { theme, setTheme, isDarkMode } = useTheme();
@@ -20,10 +22,6 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [dismissedErrorId, setDismissedErrorId] = useState<number | null>(null);
-  const isKeyErrorModalOpen = !!apiKeyError && apiKeyError.id !== dismissedErrorId;
-
-  const openSettings = () => setIsSettingsOpen(true);
-  const closeSettings = () => setIsSettingsOpen(false);
 
   useSpeechReader({
     pages: reader.pages,
@@ -43,6 +41,13 @@ export default function App() {
       reader.stopPlaying();
     },
   });
+
+  const { isAuthenticated, isLoading } = useAuth();
+
+  const isKeyErrorModalOpen = !!apiKeyError && apiKeyError.id !== dismissedErrorId;
+
+  const openSettings = () => setIsSettingsOpen(true);
+  const closeSettings = () => setIsSettingsOpen(false);
 
   const hasBook = reader.pages.length > 0;
   const showUploadArea = !loading && !hasBook;
@@ -124,6 +129,9 @@ export default function App() {
       </div>
     </div>
   );
+
+  if (isLoading) return null;
+  if (!isAuthenticated) return <AuthScreen />;
 
   return (
     <div className={`app-container app-container--${theme}`}>
