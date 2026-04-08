@@ -14,6 +14,8 @@ export interface AuthContextValue {
     login: (data: LoginRequest) => Promise<void>;
     register: (data: RegisterRequest) => Promise<void>;
     logout: () => void;
+    sessionExpiredMessage: string | null;
+    clearSessionExpiredMessage: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

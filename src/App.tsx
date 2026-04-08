@@ -219,7 +219,7 @@ export default function App() {
       )}
 
       <footer className={`app-footer app-footer--${theme}`}>
-        &copy; 2025 Enzo Klai Roth - Projeto Desenvolvido para portfolio
+        &copy; 2026 Enzo Klai Roth - Projeto Desenvolvido para portfolio
       </footer>
 
       {error && renderErrorModal(error, clearError)}

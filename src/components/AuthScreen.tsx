@@ -7,7 +7,7 @@ import { useTheme } from '../hooks/useTheme';
 type Mode = 'login' | 'register';
 
 export default function AuthScreen() {
-    const { login, register } = useAuth();
+    const { login, register, sessionExpiredMessage, clearSessionExpiredMessage } = useAuth();
     const { isDarkMode } = useTheme();
 
     const [mode, setMode] = useState<Mode>('login');
@@ -80,9 +80,23 @@ export default function AuthScreen() {
     return (
         <div className={`min-h-screen flex flex-col items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-950' : 'bg-slate-100'}`}>
 
-            {/* ↓ ALTERADO: shadow-2xl → shadow-lg | max-w-sm → w-full max-w-md mx-4 sm:mx-auto */}
+            {/* Banner de sessão expirada */}
+            {sessionExpiredMessage && (
+                <div className={`w-full max-w-105 mb-4 flex items-center justify-between gap-3 rounded-xl py-3 px-4 text-sm ${isDarkMode ? 'bg-amber-900 text-amber-100' : 'bg-amber-100 text-amber-900'}`}>
+                    <span>{sessionExpiredMessage}</span>
+                    <button
+                        onClick={clearSessionExpiredMessage}
+                        className="shrink-0 font-bold hover:opacity-70 transition-opacity"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
+            {/* Card */}
             <div className={`auth-card auth-card--${t}`}>
 
+                {/* Title inside card */}
                 <div className="text-center mb-6">
                     <h1 className={`text-xl font-black tracking-widest uppercase ${isDarkMode ? 'text-violet-400' : 'text-violet-600'}`}>
                         PDF TO AUDIO
@@ -92,6 +106,7 @@ export default function AuthScreen() {
                     </p>
                 </div>
 
+                {/* Social buttons */}
                 <div className="flex flex-col gap-3 mb-2">
                     <button
                         className={`auth-social-btn auth-social-btn--${t}`}
@@ -120,13 +135,14 @@ export default function AuthScreen() {
                     </button>
                 </div>
 
+                {/* Divider */}
                 <div className="auth-divider">
                     <span className={`auth-divider-line auth-divider-line--${t}`} />
                     <span className={`auth-divider-text auth-divider-text--${t}`}>ou</span>
                     <span className={`auth-divider-line auth-divider-line--${t}`} />
                 </div>
 
-                {/* ↓ ALTERADO: gap-1 → gap-2 */}
+                {/* Fields */}
                 <div className="flex flex-col gap-2">
                     {mode === 'login' ? (
                         <>
@@ -238,7 +254,6 @@ export default function AuthScreen() {
                         <p className={`auth-error${isDarkMode ? ' auth-error--dark' : ''}`}>{error}</p>
                     )}
 
-                    {/* ↓ ALTERADO: shadow-lg shadow-violet-500/20 → shadow-sm */}
                     <button
                         onClick={handleSubmit}
                         disabled={isSubmitting}
@@ -251,6 +266,7 @@ export default function AuthScreen() {
                 </div>
             </div>
 
+            {/* Mode switch link — below card */}
             <div className="mt-5 text-sm text-slate-500">
                 {mode === 'login' ? (
                     <>
