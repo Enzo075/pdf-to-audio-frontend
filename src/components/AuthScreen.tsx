@@ -6,7 +6,11 @@ import { useTheme } from '../hooks/useTheme';
 
 type Mode = 'login' | 'register';
 
-export default function AuthScreen() {
+interface AuthScreenProps {
+    onForgotPassword: () => void;
+}
+
+export default function AuthScreen({ onForgotPassword }: AuthScreenProps) {
     const { login, register, sessionExpiredMessage, clearSessionExpiredMessage } = useAuth();
     const { isDarkMode } = useTheme();
 
@@ -179,6 +183,18 @@ export default function AuthScreen() {
                                     {showLoginPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
                                 </button>
                             </div>
+
+                            {/* Esqueceu a senha: No futuro será implementado */}
+                            {/*
+                             <div className="flex justify-start">
+                                <span
+                                    onClick={onForgotPassword}
+                                    className={`text-sm cursor-pointer hover:underline ${isDarkMode ? 'text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-800'}`}
+                                >
+                                    Esqueceu a senha?
+                                </span>
+                            </div>
+                            */}
                         </>
                     ) : (
                         <>
@@ -273,7 +289,7 @@ export default function AuthScreen() {
                         Novo por aqui?{' '}
                         <span
                             onClick={() => switchMode('register')}
-                            className={`font-bold cursor-pointer hover:underline ${isDarkMode ? 'text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-700'}`}
+                            className={`font-bold cursor-pointer hover:underline rounded-full ${isDarkMode ? 'hover:bg-violet-950 px-2 py-1 text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-700 hover:bg-violet-200 px-2 py-1'}`}
                         >
                             Cadastrar-se
                         </span>
@@ -283,7 +299,7 @@ export default function AuthScreen() {
                         Já tem conta?{' '}
                         <span
                             onClick={() => switchMode('login')}
-                            className={`font-bold cursor-pointer hover:underline ${isDarkMode ? 'text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-700'}`}
+                            className={`font-bold cursor-pointer hover:underline rounded-full ${isDarkMode ? 'hover:bg-violet-950 px-2 py-1 text-violet-400 hover:text-violet-300' : 'text-violet-600 hover:text-violet-700 hover:bg-violet-200 px-2 py-1'}`}
                         >
                             Entrar
                         </span>

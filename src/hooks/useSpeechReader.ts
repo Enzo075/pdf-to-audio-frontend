@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
+import axios from "axios";
+import httpClient from "../lib/httpClient";
 import { SPEECH_CONFIG } from "../config/constants";
 import { parseTextToLines } from "../utils/textParser";
 import { useReadingEngine } from "./useReadingEngine";
 import type { ApiKeyError } from "../contexts/reading.context";
-import { API_BASE_URL } from "../config/constants";
 
 interface UseSpeechReaderProps {
   pages: string[];
@@ -161,28 +162,24 @@ export const useSpeechReader = ({
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      const response = await fetch(`${API_BASE_URL}/api/tts/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const response = await httpClient.post(
+        "/api/tts/generate",
+        {
           text: lines[lIndex],
           playbackRate,
           provider: apiProvider,
           apiKey,
-        }),
-        signal: controller.signal,
-      });
+        },
+        {
+          signal: controller.signal,
+          responseType: "blob",
+        },
+      );
 
       if (execId !== executionIdRef.current) return;
 
-      if (!response.ok) {
-        setApiKeyError(makeApiKeyError(toUserMessage(null, response.status)));
-        onFinish();
-        return;
-      }
-
-      const audioBlob = await response.blob();
-      if (execId !== executionIdRef.current) return;
+      // No Axios, o corpo da resposta 'blob' fica em .data
+      const audioBlob = response.data;
 
       const audioUrl = URL.createObjectURL(audioBlob);
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
@@ -214,12 +211,25 @@ export const useSpeechReader = ({
       };
 
       await audio.play();
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
+    } catch (error: unknown) {
+      // Verifica se o erro é um cancelamento proposital (AbortController)
+      if (
+        axios.isCancel(error) ||
+        (error instanceof DOMException && error.name === "AbortError")
+      )
+        return;
+
       if (execId !== executionIdRef.current) return;
 
       console.error("Erro TTS:", error);
-      setApiKeyError(makeApiKeyError(toUserMessage(error)));
+
+      // Usamos o axios.isAxiosError para tipar o erro corretamente sem usar 'any'
+      let status: number | undefined;
+      if (axios.isAxiosError(error)) {
+        status = error.response?.status;
+      }
+
+      setApiKeyError(makeApiKeyError(toUserMessage(error, status)));
       onFinish();
     }
   };

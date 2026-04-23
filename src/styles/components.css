@@ -719,7 +719,7 @@
     @apply bg-white border-slate-300 text-slate-700 hover:bg-slate-50;
   }
   .auth-social-btn--dark {
-    @apply bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700;
+    @apply bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800;
   }
 
   .auth-divider {
@@ -756,7 +756,7 @@
     @apply bg-white border-slate-300 text-slate-900;
   }
   .auth-input--dark {
-    @apply bg-slate-800 border-slate-700 text-slate-200;
+    @apply bg-slate-900 border-slate-700 text-slate-200;
   }
 
   /* Hover e focus via CSS puro — Tailwind não encadeia pseudo-classes em @apply */
@@ -800,6 +800,7 @@
   .auth-input-group input:not(:placeholder-shown) + .auth-input-label {
     top: 0;
     font-size: 0.7rem;
+    font-weight: bold;
   }
 
   .auth-input-group:focus-within .auth-input-label--light,

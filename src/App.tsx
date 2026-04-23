@@ -12,6 +12,11 @@ import { useReadingEngine } from './hooks/useReadingEngine';
 import { ThemeSwitch } from './components/ThemeSwitch';
 import { useAuth } from './hooks/useAuth';
 import AuthScreen from './components/AuthScreen';
+import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import ResetPasswordScreen from './components/ResetPasswordScreen';
+
+// Importação do ícone solicitada
+import { MdLogout } from "react-icons/md";
 
 export default function App() {
   const { theme, setTheme, isDarkMode } = useTheme();
@@ -22,6 +27,9 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [dismissedErrorId, setDismissedErrorId] = useState<number | null>(null);
+  const [authView, setAuthView] = useState<string>(() =>
+    window.location.pathname.startsWith('/reset-password/') ? 'reset-password' : 'login'
+  );
 
   useSpeechReader({
     pages: reader.pages,
@@ -42,7 +50,8 @@ export default function App() {
     },
   });
 
-  const { isAuthenticated, isLoading } = useAuth();
+  // Extraindo logout do hook useAuth
+  const { isAuthenticated, isLoading, logout } = useAuth();
 
   const isKeyErrorModalOpen = !!apiKeyError && apiKeyError.id !== dismissedErrorId;
 
@@ -107,7 +116,7 @@ export default function App() {
       <div className={`error-modal-content error-modal-content--${theme}`}>
         <div className="error-modal-icon-wrapper">
           <div className={`error-modal-icon error-modal-icon--${theme}`}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -131,10 +140,31 @@ export default function App() {
   );
 
   if (isLoading) return null;
-  if (!isAuthenticated) return <AuthScreen />;
+  if (!isAuthenticated) {
+    if (authView === 'forgot-password') return <ForgotPasswordScreen onBack={() => setAuthView('login')} />;
+    if (authView === 'reset-password') return <ResetPasswordScreen onBack={() => setAuthView('login')} />;
+    return <AuthScreen onForgotPassword={() => setAuthView('forgot-password')} />;
+  }
 
   return (
     <div className={`app-container app-container--${theme}`}>
+
+      {/* BOTÃO DE LOGOUT - CANTO SUPERIOR ESQUERDO */}
+      {showUploadArea && (
+        <div className="fixed top-6 left-6 z-50">
+          <button
+            onClick={logout}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-md active:scale-95
+              ${isDarkMode
+                ? 'bg-slate-900 text-slate-400 hover:text-red-400 border border-slate-800'
+                : 'bg-white text-slate-600 hover:text-red-600 border border-slate-200'}`}
+            title="Sair"
+          >
+            <MdLogout size={18} />
+            <span className="text-xs uppercase tracking-widest hidden sm:inline">Sair</span>
+          </button>
+        </div>
+      )}
 
       {showUploadArea && (
         <div className="app-theme-switch-wrapper">
@@ -149,7 +179,7 @@ export default function App() {
             className={`app-btn-change-pdf app-btn-change-pdf--${theme}`}
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
+              xmlns="http://w3.org"
               className="app-btn-change-pdf-icon"
               fill="none"
               viewBox="0 0 24 24"
