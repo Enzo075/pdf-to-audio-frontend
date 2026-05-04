@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FcGoogle } from 'react-icons/fc';
-import { FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 
@@ -112,23 +112,27 @@ export default function AuthScreen({ onForgotPassword }: AuthScreenProps) {
 
                 {/* Social buttons */}
                 <div className="flex flex-col gap-3 mb-2">
+                    {/* Google — implementado */}
                     <button
                         className={`auth-social-btn auth-social-btn--${t}`}
-                        onClick={() => { /* TODO: implementar OAuth com Google */ }}
+                        onClick={() => {
+                            window.location.href =
+                                (import.meta.env.VITE_API_URL as string | undefined ?? 'http://localhost:3001') +
+                                '/api/auth/google';
+                        }}
                     >
                         <FcGoogle size={20} />
                         Continuar com Google
                     </button>
+
+                    {/* Microsoft — implementado */}
                     <button
                         className={`auth-social-btn auth-social-btn--${t}`}
-                        onClick={() => { /* TODO: implementar OAuth com Apple */ }}
-                    >
-                        <FaApple size={20} className={isDarkMode ? 'text-white' : 'text-slate-800'} />
-                        Continuar com Apple
-                    </button>
-                    <button
-                        className={`auth-social-btn auth-social-btn--${t}`}
-                        onClick={() => { /* TODO: implementar OAuth com Microsoft */ }}
+                        onClick={() => {
+                            window.location.href =
+                                (import.meta.env.VITE_API_URL as string | undefined ?? 'http://localhost:3001') +
+                                '/api/auth/microsoft';
+                        }}
                     >
                         <img
                             src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"

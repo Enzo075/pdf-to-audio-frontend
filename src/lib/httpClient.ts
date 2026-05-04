@@ -3,9 +3,10 @@ import axios from "axios";
 
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // necessário para enviar/receber cookies httpOnly (refreshToken)
 });
 
+// Injeta o accessToken em todas as requisições
 httpClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -14,6 +15,7 @@ httpClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Intercepta 401 e tenta renovar via cookie httpOnly
 httpClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -23,13 +25,13 @@ httpClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Se o erro veio da própria rota de refresh, não tentar novamente
+    // Evita loop infinito na rota de refresh
     if (originalRequest.url?.includes("/api/auth/refresh")) {
       return Promise.reject(error);
     }
 
     try {
-      // Refresh token vem via cookie httpOnly — sem body necessário
+      // O refreshToken vem via cookie httpOnly — sem body necessário
       const { data } = await httpClient.post("/api/auth/refresh");
       const newToken = data.accessToken;
 
