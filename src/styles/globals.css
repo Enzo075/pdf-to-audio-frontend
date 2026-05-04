@@ -12,7 +12,7 @@
   }
 
   #root {
-    @apply min-h-screen w-full flex flex-col items-center;
+    @apply min-h-screen w-full flex flex-col;
   }
 }
 
