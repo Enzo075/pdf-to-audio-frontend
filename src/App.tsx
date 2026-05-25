@@ -4,36 +4,58 @@ import { LoadingSpinner } from "./components/LoadingSpinner";
 import { LikeABook } from "./components/LikeABook";
 import { AudioPlayer } from "./components/AudioPlayer";
 import { SettingsDrawer } from "./components/SettingsDrawer";
+import { BookShelf } from "./components/BookShelf";
+import { MenuButton } from "./components/MenuButton";
 import { usePdfUpload } from "./hooks/usePdfUpload";
 import { useReaderState } from "./hooks/useReaderState";
 import { useSpeechReader } from "./hooks/useSpeechReader";
 import { useTheme } from "./hooks/useTheme";
 import { useReadingEngine } from "./hooks/useReadingEngine";
-import { ThemeSwitch } from "./components/ThemeSwitch";
+import { useBooks } from "./hooks/useBooks";
 import { useAuth } from "./hooks/useAuth";
 import AuthScreen from "./components/AuthScreen";
 import ForgotPasswordScreen from "./components/ForgotPasswordScreen";
 import ResetPasswordScreen from "./components/ResetPasswordScreen";
 import GoogleAuthCallback from "./components/GoogleAuthCallback";
-import { MdLogout } from "react-icons/md";
+import type { Book } from "./types/book";
+
+type AppView = "upload" | "shelf" | "reading";
 
 export default function App() {
   const { theme, setTheme, isDarkMode } = useTheme();
   const { uploadPdf, loading, error, clearError } = usePdfUpload();
   const { apiKeyError } = useReadingEngine();
   const reader = useReaderState();
+  const { isAuthenticated, isLoading, logout } = useAuth();
 
+  // Hook de persistência (Código 2)
+  const { books, uploadBook, updateProgress, reorderBooks, toggleFavorite, deleteBook } = useBooks();
+
+  // --- Estado de Navegação e View ---
+  const [appView, setAppView] = useState<AppView>("upload");
+  const [currentBook, setCurrentBook] = useState<Book | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [dismissedErrorId, setDismissedErrorId] = useState<number | null>(null);
+  const [bookLoading, setBookLoading] = useState(false);
 
-  // Detecta a view inicial a partir do pathname
+  const isKeyErrorModalOpen = !!apiKeyError && apiKeyError.id !== dismissedErrorId;
+
+  // Mantido do Código 1: Detecção rigorosa do pathname para Auth
   const [authView, setAuthView] = useState<string>(() => {
     const path = window.location.pathname;
     if (path === "/auth/callback") return "google-callback";
     if (path.startsWith("/reset-password/")) return "reset-password";
     return "login";
   });
+
+  // --- Lógica de Sincronização de Progresso ---
+  const handleProgressSave = (page?: number, line?: number) => {
+    if (!currentBook) return;
+    const pageToSave = page ?? reader.currentPageIndex;
+    const lineToSave = line ?? reader.readingLineIndex;
+    updateProgress(currentBook.id, pageToSave, lineToSave);
+  };
 
   useSpeechReader({
     pages: reader.pages,
@@ -48,68 +70,109 @@ export default function App() {
     },
     onPageChange: (pageIndex) => {
       reader.setCurrentPageIndex(pageIndex);
+      handleProgressSave(pageIndex, 0);
     },
     onFinish: () => {
       reader.stopPlaying();
     },
   });
 
-  const { isAuthenticated, isLoading, logout } = useAuth();
-
-  const isKeyErrorModalOpen =
-    !!apiKeyError && apiKeyError.id !== dismissedErrorId;
-
-  const openSettings = () => setIsSettingsOpen(true);
-  const closeSettings = () => setIsSettingsOpen(false);
-
-  const hasBook = reader.pages.length > 0;
-  const showUploadArea = !loading && !hasBook;
-  const showReader = !loading && hasBook;
-  const showHeader = hasBook && !loading;
-  const isRestartMode =
-    reader.isEndOfBook &&
-    reader.currentPageIndex === reader.pages.length - 1;
-  const showTopButton = showHeader && (reader.isUserAway || reader.isEndOfBook);
-
+  // --- Handlers de Upload e Seleção ---
   interface RenderResponse {
     pages: (string | string[])[];
     info?: { Title?: string };
   }
 
-  const handleUpload = async (file: File) => {
-    const result = (await uploadPdf(file)) as unknown as RenderResponse;
-    if (!result || !result.pages) return;
-
+  const normalizePages = (result: RenderResponse, fileName: string) => {
     const pages: string[] = result.pages.map((p) => {
       if (Array.isArray(p)) return p.join("\n");
       return typeof p === "string" ? p : "";
     });
+    const title = result.info?.Title || fileName.replace(".pdf", "");
+    return { pages, title };
+  };
 
-    const title = result.info?.Title || file.name.replace(".pdf", "");
+  // Fluxo 1: Upload temporário (sem salvar)
+  const handleUpload = async (file: File) => {
+    const result = (await uploadPdf(file)) as unknown as RenderResponse;
+    if (!result || !result.pages) return;
+
+    const { pages, title } = normalizePages(result, file.name);
     reader.setBookTitle(title);
     reader.setPages(pages);
     reader.setCurrentPageIndex(0);
     reader.setReadingPageIndex(0);
     reader.setReadingLineIndex(0);
+    setCurrentBook(null);
+    setAppView("reading");
+  };
+
+  // Fluxo 2: Upload e Salvar na Estante
+  const handleUploadAndSave = async (file: File) => {
+    setBookLoading(true);
+    try {
+      const data = await uploadBook(file, true);
+      if (!data?.extraction || !data?.book) return;
+
+      const { pages, title } = normalizePages(data.extraction as RenderResponse, file.name);
+      reader.setBookTitle(title);
+      reader.setPages(pages);
+      reader.setCurrentPageIndex(0);
+      reader.setReadingPageIndex(0);
+      reader.setReadingLineIndex(0);
+      setCurrentBook(data.book as Book);
+      setAppView("reading");
+    } catch (err) {
+      console.error("[handleUploadAndSave]", err);
+    } finally {
+      setBookLoading(false);
+    }
+  };
+
+  const handleBookSelect = async (book: Book) => {
+    setBookLoading(true);
+    try {
+      const response = await fetch(book.fileUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `${book.title}.pdf`, { type: "application/pdf" });
+      const result = (await uploadPdf(file)) as unknown as RenderResponse;
+
+      if (!result || !result.pages) return;
+      const { pages, title } = normalizePages(result, book.title);
+
+      reader.setBookTitle(title);
+      reader.setPages(pages);
+      reader.setCurrentPageIndex(book.lastPageRead ?? 0);
+      reader.setReadingPageIndex(book.lastPageRead ?? 0);
+      reader.setReadingLineIndex(book.lastLineRead ?? 0);
+      setCurrentBook(book);
+      setAppView("reading");
+    } catch (err) {
+      console.error("[handleBookSelect]", err);
+    } finally {
+      setBookLoading(false);
+    }
   };
 
   const handleResetReader = () => {
+    handleProgressSave();
+
     reader.setPages([]);
     reader.stopPlaying();
     window.speechSynthesis.cancel();
+    setCurrentBook(null);
+    setAppView("upload");
   };
 
-  const toggleTheme = () => {
-    setTheme(isDarkMode ? "light" : "dark");
-  };
+  // --- UI Helpers ---
+  const hasBook = reader.pages.length > 0;
+  const showUploadArea = !loading && !bookLoading && !hasBook;
+  const showReader = !loading && !bookLoading && hasBook;
+  const showHeader = hasBook && !loading && !bookLoading;
+  const isRestartMode = reader.isEndOfBook && reader.currentPageIndex === reader.pages.length - 1;
+  const showTopButton = showHeader && (reader.isUserAway || reader.isEndOfBook);
 
-  const topButtonText = isRestartMode
-    ? "Começar a leitura do início do PDF"
-    : "Continuar leitura desta página";
-
-  const topButtonClass = isRestartMode
-    ? "app-btn-top-action bg-green-600 hover:bg-green-700 shadow-green-500/20"
-    : "app-btn-top-action bg-violet-600 hover:bg-violet-700 shadow-violet-500/20";
+  const toggleTheme = () => setTheme(isDarkMode ? "light" : "dark");
 
   const renderErrorModal = (message: string, onClose: () => void) => (
     <div className="error-modal-overlay">
@@ -117,107 +180,87 @@ export default function App() {
       <div className={`error-modal-content error-modal-content--${theme}`}>
         <div className="error-modal-icon-wrapper">
           <div className={`error-modal-icon error-modal-icon--${theme}`}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
         </div>
-        <h2 className={`error-modal-title error-modal-title--${theme}`}>
-          Ops! Algo deu errado
-        </h2>
-        <p className={`error-modal-message error-modal-message--${theme}`}>
-          {message}
-        </p>
-        <button
-          onClick={onClose}
-          className={`error-modal-button error-modal-button--${theme}`}
-        >
-          OK
-        </button>
+        <h2 className={`error-modal-title error-modal-title--${theme}`}>Ops! Algo deu errado</h2>
+        <p className={`error-modal-message error-modal-message--${theme}`}>{message}</p>
+        <button onClick={onClose} className={`error-modal-button error-modal-button--${theme}`}>OK</button>
       </div>
     </div>
   );
 
-  // Loading inicial do AuthProvider
+  // --- Auth Guards (Mantidos do Código 1) ---
   if (isLoading) return null;
-
-  // ─── Guard de autenticação ────────────────────────────────────────────────
   if (!isAuthenticated) {
     if (authView === "google-callback") return <GoogleAuthCallback />;
-    if (authView === "forgot-password")
-      return <ForgotPasswordScreen onBack={() => setAuthView("login")} />;
-    if (authView === "reset-password")
-      return <ResetPasswordScreen onBack={() => setAuthView("login")} />;
+    if (authView === "forgot-password") return <ForgotPasswordScreen onBack={() => setAuthView("login")} />;
+    if (authView === "reset-password") return <ResetPasswordScreen onBack={() => setAuthView("login")} />;
+    return <AuthScreen />;
+  }
+
+  // --- View da Estante ---
+  if (appView === "shelf") {
     return (
-      <AuthScreen onForgotPassword={() => setAuthView("forgot-password")} />
+      <BookShelf
+        books={books}
+        onBookSelect={handleBookSelect}
+        onAddNew={() => {
+          setCurrentBook(null);
+          reader.setPages([]);
+          setAppView("upload");
+        }}
+        onReorder={reorderBooks}
+        onToggleFavorite={toggleFavorite}
+        onDelete={deleteBook}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+        onLogout={logout}
+      />
     );
   }
 
-  // ─── App principal ────────────────────────────────────────────────────────
+  // --- Render Principal ---
   return (
     <div className={`app-container app-container--${theme}`}>
 
-      {/* Botão de logout — canto superior esquerdo */}
+      {/* Menu hambúrguer — visível apenas na tela de upload */}
       {showUploadArea && (
-        <div className="fixed top-6 left-6 z-50">
-          <button
-            onClick={logout}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-md active:scale-95 ${isDarkMode
-                ? "bg-slate-900 text-slate-400 hover:text-red-400 border border-slate-800"
-                : "bg-white text-slate-600 hover:text-red-600 border border-slate-200"
-              }`}
-            title="Sair"
-          >
-            <MdLogout size={18} />
-            <span className="text-xs uppercase tracking-widest hidden sm:inline">
-              Sair
-            </span>
-          </button>
-        </div>
-      )}
-
-      {showUploadArea && (
-        <div className="app-theme-switch-wrapper">
-          <ThemeSwitch isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-        </div>
+        <MenuButton
+          isDarkMode={isDarkMode}
+          toggleTheme={toggleTheme}
+          onNavigate={() => setAppView("shelf")}
+          navigateLabel="Estante"
+          onLogout={logout}
+        />
       )}
 
       <div className="app-header">
         {showHeader && (
-          <button
-            onClick={handleResetReader}
-            className={`app-btn-change-pdf app-btn-change-pdf--${theme}`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="app-btn-change-pdf-icon"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7 7-7"
-              />
-            </svg>
-            Trocar o PDF
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={handleResetReader} className={`app-btn-change-pdf app-btn-change-pdf--${theme}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="app-btn-change-pdf-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7 7-7" />
+              </svg>
+              Trocar o PDF
+            </button>
+          </div>
         )}
         {showTopButton && (
-          <button onClick={reader.handleTopButton} className={topButtonClass}>
-            {topButtonText}
+          <button
+            onClick={() => {
+              if (isRestartMode) {
+                handleProgressSave(0, 0);
+              } else {
+                handleProgressSave(reader.currentPageIndex, 0);
+              }
+              reader.handleTopButton();
+            }}
+            className={isRestartMode ? "app-btn-top-action bg-green-600 hover:bg-green-700 shadow-green-500/20" : "app-btn-top-action bg-violet-600 hover:bg-violet-700 shadow-violet-500/20"}
+          >
+            {isRestartMode ? "Começar a leitura do início do PDF" : "Continuar leitura desta página"}
           </button>
         )}
       </div>
@@ -225,23 +268,25 @@ export default function App() {
       {showUploadArea && (
         <header className="app-logo-header">
           <h1 className="app-logo-title">
-            PDF TO
-            <span className={`app-logo-subtitle--${theme}`}>AUDIO</span>
+            PDF TO <span className={`app-logo-subtitle--${theme}`}>AUDIO</span>
           </h1>
         </header>
       )}
 
       <main className="app-main-content">
-        <LoadingSpinner visible={loading} />
+        <LoadingSpinner visible={loading || bookLoading} />
 
         {showUploadArea && (
-          <div className="app-input-container">
-            <InputArea
-              onUpload={handleUpload}
-              disabled={loading}
-              isDarkMode={isDarkMode}
-            />
-          </div>
+          <>
+            <div className="app-input-container">
+              <InputArea
+                onUpload={handleUpload}
+                onUploadAndSave={handleUploadAndSave}
+                disabled={loading || bookLoading}
+                isDarkMode={isDarkMode}
+              />
+            </div>
+          </>
         )}
 
         {showReader && (
@@ -254,7 +299,9 @@ export default function App() {
             isDarkMode={isDarkMode}
             isPlaying={reader.isPlaying}
             onLineSelection={reader.handleLineSelection}
-            onPageChange={reader.setCurrentPageIndex}
+            onPageChange={(page) => {
+              reader.setCurrentPageIndex(page);
+            }}
           />
         )}
       </main>
@@ -263,7 +310,10 @@ export default function App() {
         <AudioPlayer
           isPlaying={reader.isPlaying}
           onPlay={reader.startPlaying}
-          onPause={reader.stopPlaying}
+          onPause={() => {
+            reader.stopPlaying();
+            handleProgressSave();
+          }}
           readingPageIndex={reader.readingPageIndex}
           readingLineIndex={reader.readingLineIndex}
           canGoToPrevPage={reader.canGoToPrevPage}
@@ -273,7 +323,7 @@ export default function App() {
           onLineSkip={reader.handleLineSkip}
           onPageSkip={reader.handlePageSkip}
           isDarkMode={isDarkMode}
-          onSettingsClick={openSettings}
+          onSettingsClick={() => setIsSettingsOpen(true)}
         />
       )}
 
@@ -282,15 +332,11 @@ export default function App() {
       </footer>
 
       {error && renderErrorModal(error, clearError)}
-
-      {isKeyErrorModalOpen &&
-        renderErrorModal(apiKeyError!.message, () =>
-          setDismissedErrorId(apiKeyError!.id)
-        )}
+      {isKeyErrorModalOpen && renderErrorModal(apiKeyError!.message, () => setDismissedErrorId(apiKeyError!.id))}
 
       <SettingsDrawer
         isOpen={isSettingsOpen}
-        onClose={closeSettings}
+        onClose={() => setIsSettingsOpen(false)}
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
         playbackRate={playbackRate}
@@ -298,6 +344,8 @@ export default function App() {
         isPlaying={reader.isPlaying}
         onPause={reader.stopPlaying}
         registerOnPlayStart={reader.registerOnPlayStart}
+        onLogout={logout}
+        onNavigateToShelf={books.length > 0 ? () => setAppView("shelf") : undefined}
       />
     </div>
   );

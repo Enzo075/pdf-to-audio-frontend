@@ -5,6 +5,8 @@ import type { TTSProvider } from '../contexts/reading.context';
 
 import * as Select from '@radix-ui/react-select';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { MdLogout } from 'react-icons/md';
+import { ImBooks } from "react-icons/im";
 
 interface Props {
     isOpen: boolean;
@@ -16,6 +18,10 @@ interface Props {
     isPlaying: boolean;
     onPause: () => void;
     registerOnPlayStart: (cb: () => void) => () => void;
+
+    // <-- Novas propriedades adicionadas
+    onLogout: () => void;
+    onNavigateToShelf?: () => void;
 }
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -38,6 +44,8 @@ export const SettingsDrawer = ({
     isPlaying,
     onPause,
     registerOnPlayStart,
+    onLogout,          // <-- Recebendo as props
+    onNavigateToShelf, // <-- Recebendo as props
 }: Props) => {
     const {
         readingEngine,
@@ -284,7 +292,37 @@ export const SettingsDrawer = ({
                         </div>
                     )}
 
+                    <div className="settings-section-content flex flex-col gap-3">
+                        {onNavigateToShelf && (
+                            <button
+                                onClick={() => {
+                                    onNavigateToShelf();
+                                    onClose();
+                                }}
+                                className={`flex cursor-pointer items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold transition-all active:scale-95
+                ${isDarkMode ? 'bg-slate-800 text-violet-400 hover:bg-slate-700' : 'bg-violet-50 text-violet-600 hover:bg-violet-100'}
+            `}
+                            >
+                                <ImBooks size={18} />
+                                Estante
+                            </button>
+                        )}
+
+                        <button
+                            onClick={() => {
+                                onLogout();
+                                onClose();
+                            }}
+                            className={`flex cursor-pointer items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold transition-all active:scale-95
+                                    ${isDarkMode ? 'bg-red-900/20 text-red-400 hover:bg-red-900/40' : 'bg-red-50 text-red-600 hover:bg-red-100'}
+                                `}
+                        >
+                            <MdLogout size={18} />
+                            Sair
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </>
     );

@@ -6,11 +6,11 @@ import { useTheme } from '../hooks/useTheme';
 
 type Mode = 'login' | 'register';
 
-interface AuthScreenProps {
-    onForgotPassword: () => void;
-}
+// interface AuthScreenProps {
+//     onForgotPassword: () => void;
+// }
 
-export default function AuthScreen({ onForgotPassword }: AuthScreenProps) {
+export default function AuthScreen(/*{  onForgotPassword }: AuthScreenProps */) {
     const { login, register, sessionExpiredMessage, clearSessionExpiredMessage } = useAuth();
     const { isDarkMode } = useTheme();
 

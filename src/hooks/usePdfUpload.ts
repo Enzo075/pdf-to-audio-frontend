@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { extractTextFromPDF } from "../services/api";
+import httpClient from "../lib/httpClient";
 
 export const usePdfUpload = () => {
   const [loading, setLoading] = useState(false);
@@ -10,11 +10,24 @@ export const usePdfUpload = () => {
     setError(null);
 
     try {
-      const result = await extractTextFromPDF(file);
-      return result;
+      const formData = new FormData();
+      formData.append("pdf", file);
+
+      const response = await httpClient.post("/api/pdf/extract", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      return response.data;
     } catch (err) {
+      const error = err as {
+        response?: { data?: { error?: string } };
+        message?: string;
+      };
+
       const errorMessage =
-        err instanceof Error ? err.message : "Erro ao processar o PDF.";
+        error.response?.data?.error ||
+        error.message ||
+        "Erro ao processar o PDF.";
 
       setError(errorMessage);
       return null;

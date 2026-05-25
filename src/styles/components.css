@@ -822,4 +822,62 @@
   .auth-error--dark {
     @apply bg-red-900/20 border-red-800 text-red-400;
   }
+  /* ==================== MENU HAMBÚRGUER ==================== */
+
+  .menu-btn {
+    @apply top-5 cursor-pointer right-5 z-50 p-2.5 rounded-full border transition-all shadow-md;
+  }
+
+  .menu-btn--light {
+    @apply bg-white border-slate-200 text-slate-700 hover:bg-slate-50;
+  }
+
+  .menu-btn--dark {
+    @apply bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800;
+  }
+
+  .menu-dropdown {
+    @apply absolute top-12 right-0 w-50 rounded-2xl border shadow-xl flex flex-col overflow-hidden;
+  }
+
+  .menu-dropdown--light {
+    @apply bg-white border-slate-200;
+  }
+
+  .menu-dropdown--dark {
+    @apply bg-slate-900 border-slate-800;
+  }
+
+  .menu-item {
+    @apply flex items-center gap-3 px-4 py-3 text-sm font-semibold
+         transition-colors cursor-pointer;
+  }
+
+  .menu-item--light {
+    @apply text-slate-700 hover:bg-slate-100;
+  }
+
+  .menu-item--dark {
+    @apply text-slate-300 hover:bg-slate-800;
+  }
+
+  .menu-item--danger {
+    @apply text-red-500 hover:bg-red-50;
+  }
+
+  .menu-item--danger-dark {
+    @apply text-red-400 hover:bg-red-900/20;
+  }
+
+  .menu-divider {
+    @apply h-px mx-3;
+  }
+
+  .menu-divider--light {
+    @apply bg-slate-200;
+  }
+
+  .menu-divider--dark {
+    @apply bg-slate-800;
+  }
 }
